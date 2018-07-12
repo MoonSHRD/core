@@ -42,6 +42,13 @@
     "pull-stream": "^3.6.8",
     "sinon": "^6.0.1",
     "typescript": "^2.9.2",
-    "wrtc": "~0.1.6"
+    "wrtc": "~0.1.6",
+    "mafmt": "^6.0.0",
+    "multiaddr": "^5.0.0",
+    "peer-book": "~0.8.0",
+    "peer-id": "~0.10.7",
+    "peer-info": "~0.14.1",
+    "joi": "^13.4.0",
+    "joi-browser": "^13.4.0"
   }
 }
