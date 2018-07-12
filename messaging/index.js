@@ -9,7 +9,7 @@ const Pushable = require('pull-pushable');
 const p = Pushable();
 const fs = require("fs");
 
-const path_to_peer = "./id";
+const path_to_peer = "/id";
 
 
 class Messenger {
@@ -22,7 +22,7 @@ class Messenger {
         if (!fs.existsSync(path_to_peer_json)) {
             PeerId.create({ bits: 1024 }, (err, id) => {
                 if (err) { throw err }
-                let id_file = fs.writeFileSync(path_to_peer_json, JSON.stringify(id.toJSON(), null, 2));
+                //let id_file = fs.writeFileSync(path_to_peer_json, JSON.stringify(id.toJSON(), null, 2));
                 this.pre_start_node(id)
             });
         } else {
@@ -60,7 +60,11 @@ class Messenger {
             if (err) {
                 throw err
             }
-            func(conn);
+            pull(
+                p,
+                conn
+            );
+            func(conn,p);
         });
     }
 
@@ -77,7 +81,7 @@ class Messenger {
         console.log("subscribed");
     }
 
-    read_msg(func,conn) {
+    read_msg(func,conn,p) {
 
         let data_drainer = pull.drain(drain_data,drain_err);
 
@@ -105,8 +109,9 @@ class Messenger {
             if (err) {
                 //console.log("error");
                 console.log(err);
+                p.end();
                 //throw err;
-                //data_drainer.abort(new Error('stop!'));
+                data_drainer.abort(new Error('stop!'));
             }
         }
     }
@@ -125,12 +130,23 @@ class Messenger {
         p.push(msg);
     }
 
+    // end_push_stream(p){
+    //     p.end();
+    // }
+
+    peer_disconnect(func){
+        this.node.on('peer:disconnect', (peer) => {
+            this.node.hangUp(peer, ()=>{});
+            func(peer);
+        });
+    }
+
     start() {
         this.node.start((err) => {
 
-            this.node.on('peer:disconnect', (peer) => {
-                this.node.hangUp(peer, ()=>{})
-            });
+            // this.node.on('peer:disconnect', (peer) => {
+            //     this.node.hangUp(peer, ()=>{})
+            // });
 
             if (err) { throw err }
             this.config.main_func(this);
