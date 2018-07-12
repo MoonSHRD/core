@@ -78,34 +78,60 @@ class Messenger {
     }
 
     read_msg(func,conn) {
+
+        let data_drainer = pull.drain(drain_data,drain_err);
+
+        console.log("now listening for messages");
+
         pull(
             conn,
             pull.map((data) => {
-                let ddtt=data.toString('utf8');
-                console.log("received message on chat: "+ddtt);
-                func(ddtt);
-                return ddtt
+                data=data.toString('utf8');
+                console.log("received message on chat: "+data);
+                func(data);
+                return data
             }),
-            pull.drain(console.log)
+            data_drainer
         );
+
+        function drain_data(data) {
+            if (!data){
+                console.log("sth wrong");
+            }
+            console.log(data);
+        }
+
+        function drain_err(err){
+            if (err) {
+                //console.log("error");
+                console.log(err);
+                //throw err;
+                //data_drainer.abort(new Error('stop!'));
+            }
+        }
     }
 
     handle(handle_protocol,func) {
-        this.node.handle(handle_protocol, func);
+        this.node.handle(handle_protocol, (protocol, conn) => {
+            pull(
+                p,
+                conn
+            );
+            func(protocol,conn,p)
+        });
     }
 
-    static send_msg(msg,conn) {
-        pull(
-            p,
-            conn
-        );
+    send_msg(msg,p) {
         p.push(msg);
     }
 
-
-
     start() {
         this.node.start((err) => {
+
+            this.node.on('peer:disconnect', (peer) => {
+                this.node.hangUp(peer, ()=>{})
+            });
+
             if (err) { throw err }
             this.config.main_func(this);
         });

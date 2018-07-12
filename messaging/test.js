@@ -8,11 +8,11 @@ const mainNodeAddr = '/ip4/'+mainNodeIp+'/tcp/10333/ipfs/'+mainNodeId;
 
 const config = {
     main_func: function (messenger) {
-        messenger.handle(chat_protocol,(protocol, conn) => {
+        messenger.handle(chat_protocol,(protocol, conn, push) => {
             console.log("start handling");
             messenger.read_msg((msg)=>{
                 console.log("msg: " + msg);
-                messenger.send_msg("received msg: " + msg,conn);
+                messenger.send_msg("received msg: " + msg,push);
             },conn);
         });
 
