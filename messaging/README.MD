@@ -1,33 +1,33 @@
-#Core - Messenger
+# Core - Messenger
 Core is a wrapper for libp2p, created specifically for the messenger functionality.
 
-##Requirements
+## Requirements
 In order to run and test Messenger you need a running instance of the **Main Node**, that will provide you with available peers.
 
-##Running
+## Running
 
 ```
 const Messenger = require('/path/to/core/messaging');
 let messenger = new Messenger();
 messenger.node_start(config);
-   ```
+```
 
-####Config:
+#### Config:
 
 Config must be defined and passed to node_start method.
 It must contain privKey object and main_func.
 
-####privKey:
+#### privKey:
 
 object that contains key and func.
 key - private key string or false.
 func - functions that defines behavior after key is created (only if key is false) takes key as an argument.
 
-####main_func:
+#### main_func:
 
 function that takes messenger class as an argument and defines messenger behaviour after node is started.
 
-##Методы:
+## Методы:
 
 #### `messenger.handle(handle_protocol,func)`
 - `handle_protocol` - which protocol to handle (string)
@@ -70,5 +70,5 @@ function that takes messenger class as an argument and defines messenger behavio
 - `msg` - text to send (string)
 - `p` - instance of [pull-pushable](https://github.com/pull-stream/pull-pushable)
 
-##Example
+## Example
 [test.js](https://github.com/MoonSHRD/core/blob/master/messaging/test.js)
