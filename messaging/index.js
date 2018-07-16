@@ -109,7 +109,7 @@ class Messenger {
             if (!data){
                 console.log("sth wrong");
             }
-            console.log(data);
+            //console.log(data);
         }
 
         function drain_err(err){
