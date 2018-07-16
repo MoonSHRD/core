@@ -13,7 +13,7 @@ const config = {
             messenger.read_msg((msg)=>{
                 console.log("msg: " + msg);
                 messenger.send_msg("received msg: " + msg,push);
-            },conn);
+            },conn,push);
         });
 
         messenger.pubsub(main_node_channel,(data) => {
@@ -29,6 +29,12 @@ const config = {
         //     },conn);
         //     messenger.send_msg("I've been connected to you",conn);
         // });
+    },
+    privKey: {
+        key: false,
+        func (key) {
+            //save key somewhere
+        }
     }
 };
 

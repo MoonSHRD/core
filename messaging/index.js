@@ -6,31 +6,53 @@ const PeerInfo = require('peer-info');
 const Node = require('./libp2p-bundle.js');
 const pull = require('pull-stream');
 const Pushable = require('pull-pushable');
-const p = Pushable();
 const fs = require("fs");
 
 const path_to_peer = "/id";
 
+let p = Pushable((err) => {
+    console.log('push stream closed!');
+    console.log(err);
+    p.end(err);
+});
 
 class Messenger {
 
     node_start(config) {
         this.config=config;
 
-        const path_to_peer_json = path_to_peer+'.json';
-
-        if (!fs.existsSync(path_to_peer_json)) {
+        if (config.privKey.key) {
+            try {
+                PeerId.createFromPrivKey(config.privKey.key,(err, id) => {
+                    if (err) { throw err }
+                    this.pre_start_node(id)
+                })
+            } catch (e) {
+                throw e;
+            }
+        } else {
             PeerId.create({ bits: 1024 }, (err, id) => {
                 if (err) { throw err }
+                config.privKey.func(id.privKey);
                 //let id_file = fs.writeFileSync(path_to_peer_json, JSON.stringify(id.toJSON(), null, 2));
                 this.pre_start_node(id)
             });
-        } else {
-            PeerId.createFromJSON(require(path_to_peer), (err, id) => {
-                if (err) { throw err }
-                this.pre_start_node(id)
-            });
         }
+
+        // const path_to_peer_json = path_to_peer+'.json';
+        //
+        // if (!fs.existsSync(path_to_peer_json)) {
+        //     PeerId.create({ bits: 1024 }, (err, id) => {
+        //         if (err) { throw err }
+        //         //let id_file = fs.writeFileSync(path_to_peer_json, JSON.stringify(id.toJSON(), null, 2));
+        //         this.pre_start_node(id)
+        //     });
+        // } else {
+        //     PeerId.createFromJSON(require(path_to_peer), (err, id) => {
+        //         if (err) { throw err }
+        //         this.pre_start_node(id)
+        //     });
+        // }
     }
 
     pre_start_node(id){
@@ -40,7 +62,6 @@ class Messenger {
         this.node = new Node({
             peerInfo: this.peerInfo
         });
-        //console.log("created");
 
         this.start();
     }
@@ -60,6 +81,7 @@ class Messenger {
             if (err) {
                 throw err
             }
+
             pull(
                 p,
                 conn
@@ -107,10 +129,8 @@ class Messenger {
 
         function drain_err(err){
             if (err) {
-                //console.log("error");
                 console.log(err);
                 p.end();
-                //throw err;
                 data_drainer.abort(new Error('stop!'));
             }
         }
@@ -130,10 +150,6 @@ class Messenger {
         p.push(msg);
     }
 
-    // end_push_stream(p){
-    //     p.end();
-    // }
-
     peer_disconnect(func){
         this.node.on('peer:disconnect', (peer) => {
             this.node.hangUp(peer, ()=>{});
@@ -143,11 +159,6 @@ class Messenger {
 
     start() {
         this.node.start((err) => {
-
-            // this.node.on('peer:disconnect', (peer) => {
-            //     this.node.hangUp(peer, ()=>{})
-            // });
-
             if (err) { throw err }
             this.config.main_func(this);
         });
