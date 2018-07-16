@@ -6,15 +6,14 @@ const PeerInfo = require('peer-info');
 const Node = require('./libp2p-bundle.js');
 const pull = require('pull-stream');
 const Pushable = require('pull-pushable');
-const fs = require("fs");
 
-const path_to_peer = "/id";
+function get_push () {
+    let p = Pushable((err) => {
+        console.log('push stream closed!',err);
+    });
 
-let p = Pushable((err) => {
-    console.log('push stream closed!');
-    console.log(err);
-    p.end(err);
-});
+    return p
+}
 
 class Messenger {
 
@@ -34,25 +33,9 @@ class Messenger {
             PeerId.create({ bits: 1024 }, (err, id) => {
                 if (err) { throw err }
                 config.privKey.func(id.privKey);
-                //let id_file = fs.writeFileSync(path_to_peer_json, JSON.stringify(id.toJSON(), null, 2));
                 this.pre_start_node(id)
             });
         }
-
-        // const path_to_peer_json = path_to_peer+'.json';
-        //
-        // if (!fs.existsSync(path_to_peer_json)) {
-        //     PeerId.create({ bits: 1024 }, (err, id) => {
-        //         if (err) { throw err }
-        //         //let id_file = fs.writeFileSync(path_to_peer_json, JSON.stringify(id.toJSON(), null, 2));
-        //         this.pre_start_node(id)
-        //     });
-        // } else {
-        //     PeerId.createFromJSON(require(path_to_peer), (err, id) => {
-        //         if (err) { throw err }
-        //         this.pre_start_node(id)
-        //     });
-        // }
     }
 
     pre_start_node(id){
@@ -81,6 +64,8 @@ class Messenger {
             if (err) {
                 throw err
             }
+
+            let p=get_push();
 
             pull(
                 p,
@@ -138,6 +123,9 @@ class Messenger {
 
     handle(handle_protocol,func) {
         this.node.handle(handle_protocol, (protocol, conn) => {
+
+            let p=get_push();
+
             pull(
                 p,
                 conn
@@ -148,6 +136,7 @@ class Messenger {
 
     send_msg(msg,p) {
         p.push(msg);
+        console.log("send msg: "+msg);
     }
 
     peer_disconnect(func){

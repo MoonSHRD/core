@@ -6,6 +6,8 @@ const mainNodeId = 'QmYcuVrDn76jLz62zAQDmfttX9oSFH1cGXSH9rdisbHoGP';
 const mainNodeIp = '192.168.1.12';
 const mainNodeAddr = '/ip4/'+mainNodeIp+'/tcp/10333/ipfs/'+mainNodeId;
 
+
+
 const config = {
     main_func: function (messenger) {
         messenger.handle(chat_protocol,(protocol, conn, push) => {
