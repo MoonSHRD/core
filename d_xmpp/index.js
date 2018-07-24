@@ -23,6 +23,10 @@ function D_xmpp() {
         });
     };
 
+    this.subscribe=function (dude) {
+        xmpp.subscribe(dude);
+    };
+
     this.user_subscribed=function(func){
         xmpp.on('subscribe', function(from) {
             console.log(from);

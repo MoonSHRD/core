@@ -19,10 +19,12 @@
   "dependencies": {
     "@nodeutils/defaults-deep": "^1.1.0",
     "aegir": "^14.0.0",
+    "ava": "^0.25.0",
     "chai": "^4.1.2",
     "cids": "~0.5.3",
     "dirty-chai": "^2.0.1",
     "electron-webrtc": "~0.3.0",
+    "ethers": "^3.0.25",
     "fs": "0.0.1-security",
     "joi": "^13.4.0",
     "joi-browser": "^13.4.0",
