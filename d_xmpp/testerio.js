@@ -3,12 +3,21 @@
 /**
  * Echo Bot - the XMPP Hello World
  **/
-var Client = require('./node-xmpp-client')
-var argv = process.argv
+
+var ethers = require('ethers');
+var SigningKey = ethers.SigningKey;
+
+var Client = require('./node-xmpp-client');
+var bip39 = require('bip39');
+
+
+let generationMnemonic = bip39.generateMnemonic();
+// let privKey=bip39.mnemonicToSeedHex(generationMnemonic);
+let wallet=ethers.Wallet.fromMnemonic(generationMnemonic);
 
 var config={
     jidhost				: 'localhost',
-    privKey				: '0xbbfe1c82264e0c805d8d5cc8005384b0cdb0170b98857f2e92e6a078e7a36354',
+    privKey				: wallet.privateKey,
     host				: 'localhost',
     port				: 5222
 };
