@@ -1,6 +1,7 @@
 'use strict'
 var ethers = require('ethers');
 var SigningKey = ethers.SigningKey;
+const EthCrypto = require('eth-crypto');
 var Session = require('./session')
 var core = require('node-xmpp-core')
 var JID = core.JID
@@ -123,7 +124,7 @@ function Client(options) {
 
     this.account=new ethers.Wallet(options.privKey);
     // var signingKey = new SigningKey(options.privKey);
-    this.account.pubKey=SigningKey.getPublicKey(options.privKey, true);
+    this.account.pubKey=SigningKey.getPublicKey(options.privKey, false);
     options.jid=this.account.address+"@"+options.jidhost;
     options.username=this.account.address;
     this.options = {}
@@ -296,10 +297,14 @@ Client.prototype._handleAuthState = function (stanza) {
     if (stanza.is('challenge', NS_AUTH)) {
         var challengeMsg = stanza.getText()
         var data = parseDict(challengeMsg);
-        data.signature=this.account.signMessage(challengeMsg).substr(2);
-        data.pubKey=this.account.pubKey.substr(2);
-        data.username=this.options.username.substr(2);
-        var responseMsg = encodeDict(data)
+        var messageHash = EthCrypto.hash.keccak256(data.nonce);
+        data.signature = EthCrypto.sign(
+            this.account.privateKey, // privateKey
+            messageHash // hash of message
+        );
+        //data.pubKey=this.account.pubKey;
+        data.username=this.options.username;
+        var responseMsg = encodeDict(data);
         var response = new Element('response', {xmlns: NS_AUTH}).t(responseMsg)
         this.send(response)
     } else if (stanza.is('success', NS_AUTH)) {
