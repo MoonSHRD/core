@@ -1,6 +1,6 @@
 'use strict'
 var ethers = require('ethers');
-var SigningKey = ethers.SigningKey;
+//var SigningKey = ethers.SigningKey;
 const EthCrypto = require('eth-crypto');
 var Session = require('./session')
 var core = require('node-xmpp-core')
@@ -124,7 +124,7 @@ function Client(options) {
 
     this.account=new ethers.Wallet(options.privKey);
     // var signingKey = new SigningKey(options.privKey);
-    this.account.pubKey=SigningKey.getPublicKey(options.privKey, false);
+    //this.account.pubKey=SigningKey.getPublicKey(options.privKey, false);
     options.jid=this.account.address+"@"+options.jidhost;
     options.username=this.account.address;
     this.options = {}
