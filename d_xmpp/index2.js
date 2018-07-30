@@ -4,15 +4,17 @@ let EventEmitter = require('events').EventEmitter;
 let util = require('util');
 let qbox = require('qbox');
 
-function Dxmpp() {
+let STATUS = {
+    AWAY: "away",
+    DND: "dnd",
+    XA: "xa",
+    ONLINE: "online",
+    OFFLINE: "offline"
+};
 
-    this.STATUS = {
-        AWAY: "away",
-        DND: "dnd",
-        XA: "xa",
-        ONLINE: "online",
-        OFFLINE: "offline"
-    };
+let NS_CHATSTATES = "http://jabber.org/protocol/chatstates";
+
+function Dxmpp() {
 
     let self = this;
     let config;
@@ -75,6 +77,8 @@ function Dxmpp() {
             client.send(stanza);
         });
     };
+
+
 
     // this.error=function(func){
     //     xmpp.on('error', function(err) {

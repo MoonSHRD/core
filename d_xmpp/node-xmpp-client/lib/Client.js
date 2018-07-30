@@ -1,44 +1,44 @@
 'use strict'
-var ethers = require('ethers');
-//var SigningKey = ethers.SigningKey;
+let ethers = require('ethers');
+//let SigningKey = ethers.SigningKey;
 const EthCrypto = require('eth-crypto');
-var Session = require('./session')
-var core = require('node-xmpp-core')
-var JID = core.JID
-var Stanza = core.Stanza
-var Element = core.Element
-var inherits = core.inherits
-var sasl = require('./sasl')
-var Anonymous = require('./authentication/anonymous')
-var Plain = require('./authentication/plain')
-var DigestMD5 = require('./authentication/digestmd5')
-var XOAuth2 = require('./authentication/xoauth2')
-var External = require('./authentication/external')
-var exec = require('child_process').exec
-var debug = require('debug')('xmpp:client')
-var path = require('path')
+let Session = require('./session')
+let core = require('node-xmpp-core')
+let JID = core.JID
+let Stanza = core.Stanza
+let Element = core.Element
+let inherits = core.inherits
+let sasl = require('./sasl')
+let Anonymous = require('./authentication/anonymous')
+let Plain = require('./authentication/plain')
+let DigestMD5 = require('./authentication/digestmd5')
+let XOAuth2 = require('./authentication/xoauth2')
+let External = require('./authentication/external')
+let exec = require('child_process').exec
+let debug = require('debug')('xmpp:client')
+let path = require('path')
 
-var NS_CLIENT = 'jabber:client'
-var NS_REGISTER = 'jabber:iq:register'
-var NS_AUTH = 'jabber:iq:auth'
-var NS_XMPP_SASL = 'urn:ietf:params:xml:ns:xmpp-sasl'
-var NS_XMPP_BIND = 'urn:ietf:params:xml:ns:xmpp-bind'
-var NS_XMPP_SESSION = 'urn:ietf:params:xml:ns:xmpp-session'
+let NS_CLIENT = 'jabber:client'
+let NS_REGISTER = 'jabber:iq:register'
+let NS_AUTH = 'jabber:iq:auth'
+let NS_XMPP_SASL = 'urn:ietf:params:xml:ns:xmpp-sasl'
+let NS_XMPP_BIND = 'urn:ietf:params:xml:ns:xmpp-bind'
+let NS_XMPP_SESSION = 'urn:ietf:params:xml:ns:xmpp-session'
 
-var STATE_PREAUTH = 0
-var STATE_AUTH = 1
-var STATE_AUTHED = 2
-var STATE_BIND = 3
-var STATE_SESSION = 4
-var STATE_ONLINE = 5
+let STATE_PREAUTH = 0
+let STATE_AUTH = 1
+let STATE_AUTHED = 2
+let STATE_BIND = 3
+let STATE_SESSION = 4
+let STATE_ONLINE = 5
 
-var IQID_SESSION = 'sess'
-var IQID_BIND = 'bind'
+let IQID_SESSION = 'sess'
+let IQID_BIND = 'bind'
 
-var decode64, encode64, Buffer
+let decode64, encode64, Buffer
 if (typeof btoa === 'undefined') {
-    var btoa = null
-    var atob = null
+    let btoa = null
+    let atob = null
 }
 
 if (typeof btoa === 'function') {
@@ -82,17 +82,17 @@ if (typeof atob === 'function') {
  *            data Object - Result of XMPP BOSH connection.
  *
  * Examples:
- *   var cl = new xmpp.Client({
+ *   let cl = new xmpp.Client({
  *       jid: "me@example.com",
  *       password: "secret"
  *   })
- *   var gtalk = new xmpp.Client({
+ *   let gtalk = new xmpp.Client({
  *       jid: 'me@gmail.com',
  *       oauth2_token: 'xxxx.xxxxxxxxxxx', // from OAuth2
  *       oauth2_auth: 'http://www.google.com/talk/protocol/auth',
  *       host: 'talk.google.com'
  *   })
- *   var prebind = new xmpp.Client({
+ *   let prebind = new xmpp.Client({
  *       jid: "me@example.com",
  *       password: "secret",
  *       bosh: {
@@ -106,13 +106,13 @@ if (typeof atob === 'function') {
  *
  * Example SASL EXTERNAL:
  *
- * var myCredentials = {
+ * let myCredentials = {
  *   // These are necessary only if using the client certificate authentication
  *   key: fs.readFileSync('key.pem'),
  *   cert: fs.readFileSync('cert.pem'),
  *   // passphrase: 'optional'
  * }
- * var cl = new xmppClient({
+ * let cl = new xmppClient({
  *     jid: "me@example.com",
  *     credentials: myCredentials
  *     preferred: 'EXTERNAL' // not really required, but possible
@@ -123,15 +123,15 @@ function Client(options) {
 
 
     this.account=new ethers.Wallet(options.privKey);
-    // var signingKey = new SigningKey(options.privKey);
+    //this.account.address=this.account.address.toLowerCase();
+    // let signingKey = new SigningKey(options.privKey);
     //this.account.pubKey=SigningKey.getPublicKey(options.privKey, false);
     options.jid=this.account.address+"@"+options.jidhost;
     options.username=this.account.address;
-    this.options = {}
-    if (options) this.options = options
-    this.availableSaslMechanisms = [
-        XOAuth2, External, DigestMD5, Plain, Anonymous
-    ]
+    this.options = options;
+    // this.availableSaslMechanisms = [
+    //     XOAuth2, External, DigestMD5, Plain, Anonymous
+    // ]
 
 
 
@@ -177,29 +177,29 @@ Client.prototype._useStandardConnect = function () {
     /* If server and client have multiple possible auth mechanisms
      * we try to select the preferred one
      */
-    if (this.options.preferred) {
-        this.preferredSaslMechanism = this.options.preferred
-    } else {
-        this.preferredSaslMechanism = 'DIGEST-MD5'
-    }
+    // if (this.options.preferred) {
+    //     this.preferredSaslMechanism = this.options.preferred
+    // } else {
+    //     this.preferredSaslMechanism = 'DIGEST-MD5'
+    // }
 
-    var mechs = sasl.detectMechanisms(this.options, this.availableSaslMechanisms)
-    this.availableSaslMechanisms = mechs
+    // let mechs = sasl.detectMechanisms(this.options, this.availableSaslMechanisms)
+    // this.availableSaslMechanisms = mechs
 }
 
 Client.prototype._connectViaBosh = function () {
     debug('load bosh prebind')
-    var cb = this.options.bosh.prebind
+    let cb = this.options.bosh.prebind
     delete this.options.bosh.prebind
-    var cmd = 'node ' + path.join(__dirname, 'prebind.js') + ' ' + encodeURI(JSON.stringify(this.options))
+    let cmd = 'node ' + path.join(__dirname, 'prebind.js') + ' ' + encodeURI(JSON.stringify(this.options))
     exec(
         cmd,
         function (error, stdout, stderr) {
             if (error) {
                 cb(error, null)
             } else {
-                var r = stdout.match(/rid:+[ 0-9]*/i)
-                var s = stdout.match(/sid:+[ a-z+'"-_A-Z+0-9]*/i)
+                let r = stdout.match(/rid:+[ 0-9]*/i)
+                let s = stdout.match(/sid:+[ a-z+'"-_A-Z+0-9]*/i)
                 if (!r || !s) {
                     return cb(stderr)
                 }
@@ -281,7 +281,7 @@ Client.prototype._handleBindState = function (stanza) {
         this.state = STATE_AUTHED
         this.did_bind = true
 
-        var bindEl = stanza.getChild('bind', NS_XMPP_BIND)
+        let bindEl = stanza.getChild('bind', NS_XMPP_BIND)
         if (bindEl && bindEl.getChild('jid')) {
             this.jid = new JID(bindEl.getChild('jid').getText())
         }
@@ -295,17 +295,19 @@ Client.prototype._handleBindState = function (stanza) {
 
 Client.prototype._handleAuthState = function (stanza) {
     if (stanza.is('challenge', NS_AUTH)) {
-        var challengeMsg = stanza.getText()
-        var data = parseDict(challengeMsg);
-        var messageHash = EthCrypto.hash.keccak256(data.nonce);
+        let challengeMsg = stanza.getText()
+        let data = parseDict(challengeMsg);
+        let messageHash = EthCrypto.hash.keccak256(data.nonce);
         data.signature = EthCrypto.sign(
             this.account.privateKey, // privateKey
             messageHash // hash of message
         );
         //data.pubKey=this.account.pubKey;
         data.username=this.options.username;
-        var responseMsg = encodeDict(data);
-        var response = new Element('response', {xmlns: NS_AUTH}).t(responseMsg)
+        data.firstname=this.options.firstname;
+        data.lastname=this.options.lastname;
+        let responseMsg = encodeDict(data);
+        let response = new Element('response', {xmlns: NS_AUTH}).t(responseMsg)
         this.send(response)
     } else if (stanza.is('success', NS_AUTH)) {
         this.mech = null
@@ -317,9 +319,9 @@ Client.prototype._handleAuthState = function (stanza) {
 }
 
 function parseDict(s) {
-    var result = {}
+    let result = {}
     while (s) {
-        var m
+        let m
         if ((m = /^(.+?)=(.*?[^\\]),\s*(.*)/.exec(s))) {
             result[m[1]] = m[2].replace(/"/g, '')
             s = m[3]
@@ -340,9 +342,9 @@ function parseDict(s) {
 }
 
 function encodeDict(dict) {
-    var s = ''
-    for (var k in dict) {
-        var v = dict[k]
+    let s = ''
+    for (let k in dict) {
+        let v = dict[k]
         if (v) s += ',' + k + '="' + v + '"'
     }
     return s.substr(1) // without first ','
@@ -350,7 +352,7 @@ function encodeDict(dict) {
 
 Client.prototype._handlePreAuthState = function () {
     this.state = STATE_AUTH
-    // var offeredMechs = this.streamFeatures.getChild('mechanisms', NS_XMPP_SASL).getChildren('mechanism', NS_XMPP_SASL).map(function (el) { return el.getText() })
+    // let offeredMechs = this.streamFeatures.getChild('mechanisms', NS_XMPP_SASL).getChildren('mechanism', NS_XMPP_SASL).map(function (el) { return el.getText() })
     // this.mech = sasl.selectMechanism(
     //   offeredMechs,
     //   this.preferredSaslMechanism,
@@ -367,33 +369,30 @@ Client.prototype._handlePreAuthState = function () {
     //   this.mech.realm = this.jid.domain // anything?
     //   if (this.actAs) this.mech.actAs = this.actAs.user
     //   this.mech.digest_uri = 'xmpp/' + this.jid.domain
-    //   var authMsg = encode64(this.mech.auth())
-    //   var attrs = this.mech.authAttrs()
-    var attrs = {}
-    attrs.xmlns = NS_AUTH
+    //   let authMsg = encode64(this.mech.auth())
+    //   let attrs = this.mech.authAttrs()
+    let attrs = {};
+    attrs.xmlns = NS_AUTH;
+    // attrs.username = this.account.username;
     //attrs.mechanism = this.mech.name
-    this.send(new Element('auth', attrs))
+    this.send(new Element('auth', attrs).t(this.account.address))
     // } else {
     //   this.emit('error', new Error('No usable SASL mechanism'))
     // }
-}
+};
 
 /**
  * Either we just received <stream:features/>, or we just enabled a
  * feature and are looking for the next.
  */
 Client.prototype.useFeatures = function () {
-    if ((this.state === STATE_PREAUTH) && this.register) {
-        delete this.register
-        this.doRegister()
-    } else if ((this.state === STATE_PREAUTH) &&
-        this.streamFeatures.getChild('mechanisms', NS_XMPP_SASL)) {
+    if (this.state === STATE_PREAUTH) {
         this._handlePreAuthState()
     } else if ((this.state === STATE_AUTHED) &&
         !this.did_bind &&
         this.streamFeatures.getChild('bind', NS_XMPP_BIND)) {
         this.state = STATE_BIND
-        var bindEl = new Stanza('iq', {
+        let bindEl = new Stanza('iq', {
             type: 'set',
             id: IQID_BIND
         }).c('bind', {xmlns: NS_XMPP_BIND})
@@ -405,7 +404,7 @@ Client.prototype.useFeatures = function () {
         !this.did_session &&
         this.streamFeatures.getChild('session', NS_XMPP_SESSION)) {
         this.state = STATE_SESSION
-        var stanza = new Stanza('iq', {
+        let stanza = new Stanza('iq', {
             type: 'set',
             to: this.jid.domain,
             id: IQID_SESSION
@@ -419,32 +418,32 @@ Client.prototype.useFeatures = function () {
     }
 }
 
-Client.prototype.doRegister = function () {
-    var id = 'register' + Math.ceil(Math.random() * 99999)
-    var iq = new Stanza('iq', {
-        type: 'set',
-        id: id,
-        to: this.jid.domain
-    }).c('query', {xmlns: NS_REGISTER})
-        .c('username').t(this.jid.local).up()
-        .c('password').t(this.password)
-    this.send(iq)
-
-    var self = this
-    var onReply = function (reply) {
-        if (reply.is('iq') && (reply.attrs.id === id)) {
-            self.removeListener('stanza', onReply)
-
-            if (reply.attrs.type === 'result') {
-                /* Registration successful, proceed to auth */
-                self.useFeatures()
-            } else {
-                self.emit('error', new Error('Registration error'))
-            }
-        }
-    }
-    this.on('stanza:preauth', onReply)
-}
+// Client.prototype.doRegister = function () {
+//     let id = 'register' + Math.ceil(Math.random() * 99999)
+//     let iq = new Stanza('iq', {
+//         type: 'set',
+//         id: id,
+//         to: this.jid.domain
+//     }).c('query', {xmlns: NS_REGISTER})
+//         .c('username').t(this.jid.local).up()
+//         .c('password').t(this.password)
+//     this.send(iq)
+//
+//     let self = this
+//     let onReply = function (reply) {
+//         if (reply.is('iq') && (reply.attrs.id === id)) {
+//             self.removeListener('stanza', onReply)
+//
+//             if (reply.attrs.type === 'result') {
+//                 /* Registration successful, proceed to auth */
+//                 self.useFeatures()
+//             } else {
+//                 self.emit('error', new Error('Registration error'))
+//             }
+//         }
+//     }
+//     this.on('stanza:preauth', onReply)
+// }
 
 /**
  * returns all registered sasl mechanisms
@@ -463,22 +462,22 @@ Client.prototype.clearSaslMechanism = function () {
 /**
  * register a new sasl mechanism
  */
-Client.prototype.registerSaslMechanism = function (method) {
-    // check if method is registered
-    if (this.availableSaslMechanisms.indexOf(method) === -1) {
-        this.availableSaslMechanisms.push(method)
-    }
-}
+// Client.prototype.registerSaslMechanism = function (method) {
+//     // check if method is registered
+//     if (this.availableSaslMechanisms.indexOf(method) === -1) {
+//         this.availableSaslMechanisms.push(method)
+//     }
+// }
 
 /**
  * unregister an existing sasl mechanism
  */
-Client.prototype.unregisterSaslMechanism = function (method) {
-    // check if method is registered
-    var index = this.availableSaslMechanisms.indexOf(method)
-    if (index >= 0) {
-        this.availableSaslMechanisms = this.availableSaslMechanisms.splice(index, 1)
-    }
-}
+// Client.prototype.unregisterSaslMechanism = function (method) {
+//     // check if method is registered
+//     let index = this.availableSaslMechanisms.indexOf(method)
+//     if (index >= 0) {
+//         this.availableSaslMechanisms = this.availableSaslMechanisms.splice(index, 1)
+//     }
+// }
 
 module.exports = Client

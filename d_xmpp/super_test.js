@@ -12,10 +12,17 @@ dxmpp.on('buddy', function(jid, state, statusText) {
 dxmpp.on('subscribe', function(from) {
     console.log(from);
     dxmpp.acceptSubscription(from);
+    dxmpp.send(from,"fuck you");
 });
 
-dxmpp.acceptSubscription("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
+dxmpp.on('chat', function(from, message) {
+    console.log(`received msg: "${message}", from: "${from}"`);
+});
+
 dxmpp.subscribe("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
+
+// dxmpp.acceptSubscription("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
+// dxmpp.subscribe("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
 
 // dxmpp.subscribe()
 
@@ -27,7 +34,9 @@ let config={
     jidhost				: 'localhost',
     privKey				: priv,
     host				: 'localhost',
-    port				: 5222
+    port				: 5222,
+    firstname		    : "Nikita",
+    lastname		    : "Metelkin"
 };
 
 dxmpp.connect(config);
