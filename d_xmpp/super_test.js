@@ -19,7 +19,7 @@ dxmpp.on('chat', function(from, message) {
     console.log(`received msg: "${message}", from: "${from}"`);
 });
 
-dxmpp.subscribe("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
+// dxmpp.subscribe("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
 
 // dxmpp.acceptSubscription("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
 // dxmpp.subscribe("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");

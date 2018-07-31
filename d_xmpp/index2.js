@@ -37,14 +37,6 @@ function Dxmpp() {
     };
 
     this.events = events;
-    //this.client = client;
-
-    // this.receive_msg=function(func){
-    //     xmpp.on('chat', function(from, message) {
-    //         console.log(`received msg: "${message}", from: "${from}"`);
-    //         func(from,message);
-    //     });
-    // };
 
     this.get_contacts=function () {
         $.ready(function() {
@@ -54,22 +46,6 @@ function Dxmpp() {
         });
     };
 
-    // this.online=function(func){
-    //     client.on('online', function (func) {
-    //         console.log('online');
-    //         if (func) {
-    //             func();
-    //         }
-    //         client.send(new Stanza('presence', { })
-    //             .c('show').t('chat').up()
-    //             .c('status').t('Happily echoing your <message/> stanzas')
-    //         )
-    //     });
-    //     // xmpp.on('online', function(data) {
-    //     //     console.log('Online with JID: ' + data.jid.user);
-    //     //     func(data);
-    //     // });
-    // };
 
     this.acceptSubscription = function(to) {
         $.ready(function() {
@@ -79,14 +55,6 @@ function Dxmpp() {
     };
 
 
-
-    // this.error=function(func){
-    //     xmpp.on('error', function(err) {
-    //         console.log(err);
-    //         func(err);
-    //     });
-    // };
-
     this.subscribe=function (to) {
         $.ready(function() {
             let stanza = new Stanza('presence', {to: to, type: 'subscribe'});
@@ -94,12 +62,6 @@ function Dxmpp() {
         });
     };
 
-    // this.user_subscribed=function(func){
-    //     xmpp.on('subscribe', function(from) {
-    //         console.log(from);
-    //         func(from);
-    //     });
-    // };
 
     this.send = function(to, message, group) {
         $.ready(function() {
@@ -109,20 +71,6 @@ function Dxmpp() {
         });
     };
 
-    // this.friends_online=function(func){
-    //     xmpp.on('buddy', function(jid, state, statusText) {
-    //         console.log(`${jid} is ${state}` + ( statusText ? state : "" ));
-    //         func(jid, state, statusText);
-    //     });
-    // };
-
-    // this.start=function(config){
-    //     this.client = new Client(config);
-    //
-    //     // xmpp.connect(config);
-    //     //
-    //     // xmpp.getRoster();
-    // };
 
     this.disconnect = function() {
         $.ready(function() {
@@ -322,30 +270,3 @@ function Dxmpp() {
 }
 
 module.exports = new Dxmpp();
-
-// var client = new Client(config)
-//
-// client.on('online', function () {
-//     console.log('online')
-//     client.send(new Client.Stanza('presence', { })
-//         .c('show').t('chat').up()
-//         .c('status').t('Happily echoing your <message/> stanzas')
-//     )
-// })
-//
-// client.on('stanza', function (stanza) {
-//     if (stanza.is('message') &&
-//         // Important: never reply to errors!
-//         (stanza.attrs.type !== 'error')) {
-//         // Swap addresses...
-//         stanza.attrs.to = stanza.attrs.from
-//         delete stanza.attrs.from
-//         // and send back
-//         console.log('Sending response: ' + stanza.root().toString())
-//         client.send(stanza)
-//     }
-// })
-//
-// client.on('error', function (e) {
-//     console.error(e)
-// })

@@ -7,6 +7,17 @@ const mainNodeIp = '192.168.1.12';
 const mainNodeAddr = '/ip4/' + mainNodeIp + '/tcp/10333/ipfs/' + mainNodeId;
 
 
+
+Messenger.on('start_handling', function(data){
+    console.log("start handling");
+});
+
+
+
+
+
+
+
 const config = {
     main_func: function (messenger) {
         messenger.handle(chat_protocol, (protocol, conn, push) => {
@@ -56,5 +67,5 @@ const config = {
     }
 };
 
-let messenger = new Messenger('./id');
+// let messenger = new Messenger();
 messenger.node_start(config);
