@@ -1,86 +1,43 @@
-const d_xmpp = require('./index.js');
+const dxmpp = require('./index');
 
-d_xmpp.online((data)=>{
-
+dxmpp.on('online',function (data) {
+    console.log(data);
+    console.log("mazafaka");
 });
 
-d_xmpp.friends_online((jid, state, statusText)=>{
-    d_xmpp.send_msg(jid,"Hello, cocky!");
+dxmpp.on('buddy', function(jid, state, statusText) {
+    console.log(`${jid} is ${state}` + ( statusText ? state : "" ));
 });
 
-d_xmpp.receive_msg((from,message)=>{
-    console.log(`from: ${from} msg: ${message}`);
+dxmpp.on('subscribe', function(from) {
+    console.log(from);
+    dxmpp.acceptSubscription(from);
+    dxmpp.send(from,"fuck you");
 });
+
+dxmpp.on('chat', function(from, message) {
+    console.log(`received msg: "${message}", from: "${from}"`);
+});
+
+dxmpp.subscribe("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
+
+// dxmpp.acceptSubscription("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
+// dxmpp.subscribe("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
+
+// dxmpp.subscribe()
+
+// let addr="0x0fEaB3B11b087c9e6f1B861e265b78C693aA100b";
+let addr="0x0feab3b11b087c9e6f1b861e265b78c693aa100b";
+let priv="0xe8662f419b434b3e17854f26eb37878fdcfd34adfa0c6c7990fa8e546efd1951";
 
 let config={
-    jid					: 'userer@localhost',
-    password		    : 'penciler',
+    jidhost				: 'localhost',
+    privKey				: priv,
     host				: 'localhost',
-    port				: 5222
+    port				: 5222,
+    firstname		    : "Nikita",
+    lastname		    : "Metelkin"
 };
 
-d_xmpp.subscribe("penis@localhost");
-
-d_xmpp.start(config);
-
-//d_xmpp.send_msg("penis@localhost","sosi");
-
-//
-// xmpp.on('online', function(data) {
-//     console.log('Connected with JID: ' + data.jid.user);
-//     console.log(data);
-//     console.log('Yes, I\'m connected!');
-// });
-//
-// xmpp.on('chat', function(from, message) {
-//     console.log(from);
-//     console.log(message);
-//     xmpp.send(from, 'echo: ' + message);
-// });
-//
-// xmpp.on('error', function(err) {
-//     console.error(err);
-// });
-//
-// xmpp.on('subscribe', function(from) {
-//     // if (from === 'a.friend@gmail.com') {
-//     //     xmpp.acceptSubscription(from);
-//     // }
-//     xmpp.acceptSubscription(from);
-//     console.log(from);
-// });
-//
-// xmpp.on('buddy', function(jid, state, statusText) {
-//     console.log("---------------%s is now '%s' (%s)", jid, state, statusText);
-//     xmpp.send(jid, "chlen");
-//
-//
-//     process.stdin.setEncoding('utf8');
-//     process.openStdin().on('data', (chunk) => {
-//         let data = chunk.toString();
-//         console.log(data);
-//         if (data.search(/send [^ ]* ".*"/i) !== -1) {
-//             data = data.match( /send ([^ ]*) "(.*)"/i );
-//             let addr = data[1];
-//             let msg = data[2];
-//             console.log(addr);
-//             console.log(msg);
-//             xmpp.send(addr, msg);
-//         }
-//     })
-//     // xmpp.getVCard(argv[2], function(vcard) {
-//     //     console.log(vcard);
-//     //     process.exit(0);
-//     // });
-// });
-//
-// xmpp.connect({
-//     jid					: 'kkk@localhost',
-//     password		    : '123',
-//     host				: '192.168.1.2',
-//     port				: 5222
-// });
-//
-// //xmpp.subscribe('your.friend@gmail.com');
-// // check for incoming subscription requests
-// xmpp.getRoster();
+dxmpp.connect(config);
+dxmpp.get_contacts();
