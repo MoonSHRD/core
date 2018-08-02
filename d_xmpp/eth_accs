@@ -1,0 +1,11 @@
+112233445566
+
+{"version":3,"id":"5087db94-3c9f-405f-abce-d25be620b4d9","address":"c1be40baf9db90ed9b859802c763703936a23eaa","Crypto":{"ciphertext":"d5591ac6cab9d5be125585678b8249935de9f393b76a47dbe05192fbc810ecd1","cipherparams":{"iv":"3dfb06e3bf635f0e70f011ef49877774"},"cipher":"aes-128-ctr","kdf":"scrypt","kdfparams":{"dklen":32,"salt":"6c99e3ed9e55552c73c6ba55da2b91825db0af3bc3ad1256b2b2362c05d87d7f","n":8192,"r":8,"p":1},"mac":"55d7ffc98ccfee4b7b5ef682ea4fe322e73cd69a4e5c5169f6c4bae640d8ec7f"}}
+
+priv: a3dd1c7879d8b307991511716c9ab17af79558c6ddbdd83a781a84e0542d1c29
+
+665544332211
+
+{"version":3,"id":"9d1e7033-25d1-4101-9cb0-af8cb9989200","address":"5ead28eeff2f0b71130da18e734d3d4eb7dd04a6","Crypto":{"ciphertext":"acfdcbceaf635ff21468e66e925bcab119a06773ff5cc02d0012d30eb5149083","cipherparams":{"iv":"ddd0922676a0667a00fbe9c04e46a985"},"cipher":"aes-128-ctr","kdf":"scrypt","kdfparams":{"dklen":32,"salt":"b3594684a8afe0dd26c2774fb9f033487b8692b395c341c5ad55354164845e82","n":8192,"r":8,"p":1},"mac":"6cf5b86d7b89a3ae89a2fc522d9f7e9e82c9fdcfacf7deab8eb741d3afd6b6cd"}}
+
+priv: bbfe1c82264e0c805d8d5cc8005384b0cdb0170b98857f2e92e6a078e7a36354

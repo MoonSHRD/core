@@ -5,17 +5,25 @@ d_xmpp.online((data)=>{
 });
 
 d_xmpp.friends_online((jid, state, statusText)=>{
-    d_xmpp.send_msg(jid,"Hello, cocky!")
+    d_xmpp.send_msg(jid,"Hello, cocky!");
+});
+
+d_xmpp.receive_msg((from,message)=>{
+    console.log(`from: ${from} msg: ${message}`);
 });
 
 let config={
-    jid					: 'kkk@localhost',
-    password		    : '123',
-    host				: '192.168.1.2',
+    jid					: 'userer@localhost',
+    password		    : 'penciler',
+    host				: 'localhost',
     port				: 5222
 };
 
+d_xmpp.subscribe("penis@localhost");
+
 d_xmpp.start(config);
+
+//d_xmpp.send_msg("penis@localhost","sosi");
 
 //
 // xmpp.on('online', function(data) {
