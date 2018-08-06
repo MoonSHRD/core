@@ -68,6 +68,35 @@ function Dxmpp() {
         });
     };
 
+    this.join = function(to, password) {
+
+        $.ready(function() {
+            let room = to.split('/')[0];
+            if(!joinedRooms[room]){
+                joinedRooms[room] = true;
+            }
+            let stanza =  new Stanza('presence', { to: to }).
+            c('x', { xmlns: 'http://jabber.org/protocol/muc' });
+            // XEP-0045 7.2.6 Password-Protected Rooms
+            if (password != null && password != "")
+                stanza.c('password').t(password);
+            client.send(stanza);
+        });
+    };
+
+    this.invite = function(to, room, reason) {
+
+        $.ready(function() {
+            let stanza =  new Stanza('message', { to: room }).
+            c('x', { xmlns: 'http://jabber.org/protocol/muc#user' }).
+            c('invite', {to: to});
+            if (reason)
+                stanza.c('reason').t(reason);
+            client.send(stanza);
+        });
+
+    };
+
     this.disconnect = function() {
         $.ready(function() {
             let stanza = new Stanza('presence', {type: 'unavailable'});
