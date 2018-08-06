@@ -18,21 +18,20 @@ function get_push () {
 }
 
 class Messenger {
-constructor() {
-    let events = new EventEmitter();
-    this.on = function() {
-        events.on.apply(events, Array.prototype.slice.call(arguments));
-    };
-    this.removeListener = function() {
-        events.removeListener.apply(events, Array.prototype.slice.call(arguments));
-    };
-    this.$ = qbox.create();
-}
+    constructor() {
+        this.events = new EventEmitter();
+        this.on = function() {
+            this.events.on.apply(this.events, Array.prototype.slice.call(arguments));
+        };
+        this.removeListener = function() {
+            this.events.removeListener.apply(this.events, Array.prototype.slice.call(arguments));
+        };
+        this.$ = qbox.create();
+    }
 
     node_start(config) {
+
         this.config=config;
-
-
 
         if (config.privKey.key) {
             try {
@@ -71,6 +70,7 @@ constructor() {
             func(conn);
         });
         console.log("dialed");
+        this.events.emit('send_msg');
     }
 
     dial_protocol(addr,protocol,func){
@@ -102,6 +102,7 @@ constructor() {
                 }
             }, () => {});
             console.log("subscribed");
+            this.events.emit('dial');
         })
     };
 
@@ -126,7 +127,6 @@ constructor() {
                 if (!data){
                     console.log("sth wrong");
                 }
-                //console.log(data);
             }
 
             function drain_err(err){
@@ -136,6 +136,7 @@ constructor() {
                     data_drainer.abort(new Error('stop!'));
                 }
             }
+            this.events.emit('pubsub');
         })
     };
 
@@ -179,12 +180,10 @@ constructor() {
             if (err) {throw err}
             this.$.start();
             // this.config.main_func(this);
-        this.on('start handling', function() {
-
-        });
+            this.events.emit('start handling');
         this.on('close', function() {
             $.stop();
-            events.emit('close');
+            this.events.emit('close');
             });
         });
     }
