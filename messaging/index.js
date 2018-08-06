@@ -63,7 +63,8 @@ class Messenger {
     }
 
     dial(addr,func) {
-        this.node.dial(addr, (err, conn) => {
+        let self = this;
+        self.node.dial(addr, (err, conn) => {
             if (err) {
                 throw err
             }
@@ -91,25 +92,26 @@ class Messenger {
 
 
     pubsub(channel,func) {
+        let self = this;
         this.$.ready(function() {
-            this.node.pubsub.subscribe(channel, (msg) => {
+            self.node.pubsub.subscribe(channel, (msg) => {
                 try {
                     let data = JSON.parse(msg.data.toString());
-                    delete data["data"][this.peer_id];
+                    delete data["data"][self.peer_id];
                     func(data);
                 } catch (e) {
                     console.log(e);
                 }
             }, () => {});
             console.log("subscribed");
-            this.events.emit('dial');
+            self.events.emit('dial');
         })
     };
 
 
     read_msg(func, conn, p) {
         this.$.ready(function() {
-            let data_drainer = pull.drain(drain_data,drain_err);
+            let data_drainer = pull.drain(drain_data, drain_err);
 
             console.log("now listening for messages");
 
@@ -117,7 +119,7 @@ class Messenger {
                 conn,
                 pull.map((data) => {
                     data=data.toString('utf8');
-                    console.log("received message on chat: "+data);
+                    console.log("received message on chat: " + data);
                     func(data);
                     return data
                 }),
@@ -136,24 +138,22 @@ class Messenger {
                     data_drainer.abort(new Error('stop!'));
                 }
             }
-            this.events.emit('pubsub');
         })
     };
 
 
     handle(handle_protocol, func) {
+        let self = this;
         this.$.ready(function () {
-            this.node.handle(handle_protocol, (protocol, conn) => {
+            self.node.handle(handle_protocol, (protocol, conn) => {
 
-                let p=get_push();
+                let p = get_push();
 
-                pull(
-                    p,
-                    conn
-                );
-                func(protocol, conn, p)
+                pull(p, conn);
+                func(protocol, conn, p);
             });
-        })
+        });
+        this.events.emit('pubsub');
     };
 
 
@@ -180,7 +180,7 @@ class Messenger {
             if (err) {throw err}
             this.$.start();
             // this.config.main_func(this);
-            this.events.emit('start handling');
+            this.events.emit('start_handling');
         this.on('close', function() {
             $.stop();
             this.events.emit('close');

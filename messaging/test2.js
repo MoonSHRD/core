@@ -37,7 +37,7 @@ Messenger.on('send_msg', function(){
         if (data.search(/connect \/.*/i) !== -1) {
             let addr = data.match( /connect (\/.*)/i )[1];
             console.log(addr);
-            Messenger.dial_protocol(addr, chat_protocol, (conn,push) => {
+            Messenger.dial_protocol(addr, chat_protocol, (conn, push) => {
                 Messenger.read_msg((msg) => {
                     console.log(msg);
                 }, conn, push);
