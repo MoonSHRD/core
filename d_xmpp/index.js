@@ -13,6 +13,16 @@ let STATUS = {
 };
 
 let NS_CHATSTATES = "http://jabber.org/protocol/chatstates";
+let NS_ROOMSTATES = "http://jabber.org/protocol/muc";
+
+function get_room_data(stanza){
+    let shit = stanza.attrs.from.split('/');
+    let shit2 = shit[0].split('@');
+    let id = shit2[0];
+    let host = shit2[1];
+    let name = shit[1];
+    return {id,host,name}
+}
 
 function Dxmpp() {
 
@@ -76,10 +86,19 @@ function Dxmpp() {
                 joinedRooms[room] = true;
             }
             let stanza =  new Stanza('presence', { to: to }).
-            c('x', { xmlns: 'http://jabber.org/protocol/muc' });
+            c('x', { xmlns: NS_ROOMSTATES });
             // XEP-0045 7.2.6 Password-Protected Rooms
             if (password != null && password != "")
                 stanza.c('password').t(password);
+            client.send(stanza);
+        });
+    };
+
+    this.register_room = function(name, password) {
+
+        $.ready(function() {
+            let stanza =  new Stanza('presence', { from:self.client.options.jid,to: name }).
+            c('x', { xmlns: NS_ROOMSTATES });
             client.send(stanza);
         });
     };
@@ -88,7 +107,7 @@ function Dxmpp() {
 
         $.ready(function() {
             let stanza =  new Stanza('message', { to: room }).
-            c('x', { xmlns: 'http://jabber.org/protocol/muc#user' }).
+            c('x', { xmlns: NS_ROOMSTATES+'#user' }).
             c('invite', {to: to});
             if (reason)
                 stanza.c('reason').t(reason);
@@ -178,13 +197,10 @@ function Dxmpp() {
                     let body = stanza.getChild('body');
                     if(body) {
                         let message = body.getText();
-                        let from = stanza.attrs.from;
-                        let conference = from.split('/')[0];
-                        let id = from.split('/')[1];
                         let stamp = null;
                         if(stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
                             stamp = stanza.getChild('x').attrs.stamp;
-                        events.emit('groupchat', conference, id, message, stamp);
+                        events.emit('groupchat', get_room_data(stanza), message, stamp);
                     }
                 }
             } else if(stanza.is('presence')) {
@@ -202,6 +218,12 @@ function Dxmpp() {
                         let id = from.split('/')[0];
                         let resource = from.split('/')[1];
                         let statusText = stanza.getChildText('status');
+                        let x_elem=stanza.getChild('x');
+                        if (x_elem.attrs.xmlns === NS_ROOMSTATES+'#user') {
+                            let item_elem=x_elem.getChild('item');
+                            let role = item_elem.attrs.role;
+                            events.emit('joined_room',role,get_room_data(stanza))
+                        }
                         let state = (stanza.getChild('show'))? stanza.getChild('show').getText(): STATUS.ONLINE;
                         state = (state == 'chat')? STATUS.ONLINE : state;
                         state = (stanza.attrs.type == 'unavailable')? STATUS.OFFLINE : state;

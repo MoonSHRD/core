@@ -114,20 +114,11 @@ if (typeof atob === 'function') {
  *
  */
 function Client(options) {
-
-
     this.account=new ethers.Wallet(options.privKey);
-    //this.account.address=this.account.address.toLowerCase();
-    // let signingKey = new SigningKey(options.privKey);
-    //this.account.pubKey=SigningKey.getPublicKey(options.privKey, false);
-    options.jid=this.account.address+"@"+options.jidhost;
-    options.username=this.account.address;
+
+    options.jid=this.account.address.toLowerCase()+"@"+options.jidhost;
+    options.username=this.account.address.toLowerCase();
     this.options = options;
-    // this.availableSaslMechanisms = [
-    //     XOAuth2, External, DigestMD5, Plain, Anonymous
-    // ]
-
-
 
     if (this.options.autostart !== false) this.connect()
 }
@@ -369,7 +360,7 @@ Client.prototype._handlePreAuthState = function () {
     attrs.xmlns = NS_AUTH;
     // attrs.username = this.account.username;
     //attrs.mechanism = this.mech.name
-    this.send(new Element('auth', attrs).t(this.account.address))
+    this.send(new Element('auth', attrs).t(this.options.username))
     // } else {
     //   this.emit('error', new Error('No usable SASL mechanism'))
     // }
