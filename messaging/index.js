@@ -54,7 +54,7 @@ class Messenger {
     pre_start_node(id){
         this.peerInfo = new PeerInfo(id);
         this.peer_id = this.peerInfo.id.toB58String();
-        this.peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/10330');
+        this.peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/10331');
         this.node = new Node({
             peerInfo: this.peerInfo
         });
@@ -64,14 +64,17 @@ class Messenger {
 
     dial(addr,func) {
         let self = this;
-        self.node.dial(addr, (err, conn) => {
-            if (err) {
-                throw err
-            }
-            func(conn);
+        this.$.ready(function () {
+            self.node.dial(addr, (err, conn) => {
+                if (err) {
+                    throw err
+                }
+                func(conn);
+            });
+            console.log("dialed");
+            // this.events.emit('send_msg');
         });
-        console.log("dialed");
-        this.events.emit('send_msg');
+
     }
 
     dial_protocol(addr,protocol,func){
@@ -86,12 +89,13 @@ class Messenger {
                 p,
                 conn
             );
-            func(conn,p);
+            func(conn, p);
+            this.events.emit('read_msg', conn, p);
         });
     }
 
 
-    pubsub(channel,func) {
+    pubsub(channel, func) {
         let self = this;
         this.$.ready(function() {
             self.node.pubsub.subscribe(channel, (msg) => {
@@ -104,7 +108,7 @@ class Messenger {
                 }
             }, () => {});
             console.log("subscribed");
-            self.events.emit('dial');
+            // self.events.emit('dial');
         })
     };
 
@@ -153,7 +157,7 @@ class Messenger {
                 func(protocol, conn, p);
             });
         });
-        this.events.emit('pubsub');
+        // this.events.emit('pubsub');
     };
 
 
@@ -166,9 +170,10 @@ class Messenger {
 
 
     peer_disconnect(func) {
-        this.$.ready(function () {
-            this.node.on('peer:disconnect', (peer) => {
-                this.node.hangUp(peer, ()=>{});
+        self = this;
+        self.$.ready(function () {
+            self.node.on('peer:disconnect', (peer) => {
+                self.node.hangUp(peer, ()=>{});
                 func(peer);
             });
         })
@@ -176,17 +181,19 @@ class Messenger {
 
 
     start() {
-        this.node.start((err) => {
+        let self = this;
+        self.node.start((err) => {
             if (err) {throw err}
-            this.$.start();
+            self.$.start();
             // this.config.main_func(this);
-            this.events.emit('start_handling');
-        this.on('close', function() {
-            $.stop();
-            this.events.emit('close');
+            // this.handle();
+            // this.events.emit('start_handling');
+        self.on('close', function() {
+            self.$.stop();
+            self.events.emit('close');
             });
         });
     }
 }
 
-module.exports = new Messenger;
+module.exports = new Messenger();
