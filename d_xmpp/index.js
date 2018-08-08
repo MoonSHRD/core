@@ -15,15 +15,6 @@ let STATUS = {
 let NS_CHATSTATES = "http://jabber.org/protocol/chatstates";
 let NS_ROOMSTATES = "http://jabber.org/protocol/muc";
 
-function get_room_data(stanza){
-    let shit = stanza.attrs.from.split('/');
-    let shit2 = shit[0].split('@');
-    let id = shit2[0];
-    let host = shit2[1];
-    let name = shit[1];
-    return {id,host,name}
-}
-
 function Dxmpp() {
 
     let self = this;
@@ -37,56 +28,54 @@ function Dxmpp() {
     let $ = qbox.create();
 
 
-
     let events = new EventEmitter();
-    this.on = function() {
+    this.on = function () {
         events.on.apply(events, Array.prototype.slice.call(arguments));
     };
-    this.removeListener = function() {
+    this.removeListener = function () {
         events.removeListener.apply(events, Array.prototype.slice.call(arguments));
     };
 
     this.events = events;
 
-    this.get_contacts=function () {
-        $.ready(function() {
+    this.get_contacts = function () {
+        $.ready(function () {
             let roster = new Stanza('iq', {id: 'roster_0', type: 'get'});
             roster.c('query', {xmlns: 'jabber:iq:roster'});
             client.send(roster);
         });
     };
 
-    this.acceptSubscription = function(to) {
-        $.ready(function() {
-            let stanza = new Stanza('presence', { to: to, type: 'subscribed' });
+    this.acceptSubscription = function (to) {
+        $.ready(function () {
+            let stanza = new Stanza('presence', {to: to, type: 'subscribed'});
             client.send(stanza);
         });
     };
 
-    this.subscribe=function (to) {
-        $.ready(function() {
+    this.subscribe = function (to) {
+        $.ready(function () {
             let stanza = new Stanza('presence', {to: to, type: 'subscribe'});
             client.send(stanza);
         });
     };
 
-    this.send = function(to, message, group) {
-        $.ready(function() {
-            let stanza = new Stanza('message', { to: to, type: (group ? 'groupchat' : 'chat') });
+    this.send = function (to, message, group) {
+        $.ready(function () {
+            let stanza = new Stanza('message', {to: to, type: (group ? 'groupchat' : 'chat')});
             stanza.c('body').t(message);
             client.send(stanza);
         });
     };
 
-    this.join = function(to, password) {
+    this.join = function (to, password) {
 
-        $.ready(function() {
+        $.ready(function () {
             let room = to.split('/')[0];
-            if(!joinedRooms[room]){
+            if (!joinedRooms[room]) {
                 joinedRooms[room] = true;
             }
-            let stanza =  new Stanza('presence', { to: to }).
-            c('x', { xmlns: NS_ROOMSTATES });
+            let stanza = new Stanza('presence', {from:client.options.jid,to: to}).c('x', {xmlns: NS_ROOMSTATES});
             // XEP-0045 7.2.6 Password-Protected Rooms
             if (password != null && password != "")
                 stanza.c('password').t(password);
@@ -94,21 +83,18 @@ function Dxmpp() {
         });
     };
 
-    this.register_room = function(name, password) {
+    this.register_room = function (name, password) {
 
-        $.ready(function() {
-            let stanza =  new Stanza('presence', { from:self.client.options.jid,to: name }).
-            c('x', { xmlns: NS_ROOMSTATES });
+        $.ready(function () {
+            let stanza = new Stanza('presence', {to: name}).c('x', {xmlns: NS_ROOMSTATES});
             client.send(stanza);
         });
     };
 
-    this.invite = function(to, room, reason) {
+    this.invite = function (to, room, reason) {
 
-        $.ready(function() {
-            let stanza =  new Stanza('message', { to: room }).
-            c('x', { xmlns: NS_ROOMSTATES+'#user' }).
-            c('invite', {to: to});
+        $.ready(function () {
+            let stanza = new Stanza('message', {to: room}).c('x', {xmlns: NS_ROOMSTATES + '#user'}).c('invite', {to: to});
             if (reason)
                 stanza.c('reason').t(reason);
             client.send(stanza);
@@ -116,8 +102,8 @@ function Dxmpp() {
 
     };
 
-    this.disconnect = function() {
-        $.ready(function() {
+    this.disconnect = function () {
+        $.ready(function () {
             let stanza = new Stanza('presence', {type: 'unavailable'});
             stanza.c('status').t('Logged out');
             client.send(stanza);
@@ -134,42 +120,62 @@ function Dxmpp() {
         });
     };
 
-    this.connect = function(params) {
+    function get_room_data(stanza) {
+        let name = undefined;
+        let host = undefined;
+        let id = undefined;
+        if (stanza.attrs.from.indexOf('/') !== -1) {
+            let shit = stanza.attrs.from.split('/');
+            name = shit[1];
+            shit=shit[0];
+            let shit2 = shit.split('@');
+            id = shit2[0];
+            host = shit2[1];
+        } else {
+            id=stanza.attrs.from.split('@')[0];
+            let data = joinedRooms[id];
+            name=data.name;
+            host=data.host;
+        }
+        return {id, host, name}
+    }
+
+    this.connect = function (params) {
 
         config = params;
         client = new xmpp.Client(params);
         self.client = client;
 
-        client.on('close', function() {
+        client.on('close', function () {
             $.stop();
             events.emit('close');
         });
 
-        client.on('online', function(data){
-            if(! config.skipPresence) {
+        client.on('online', function (data) {
+            if (!config.skipPresence) {
                 client.send(new Stanza('presence'));
             }
             events.emit('online', data);
             $.start();
 
             // keepalive
-            if(self.client.connection.socket) {
+            if (self.client.connection.socket) {
                 self.client.connection.socket.setTimeout(0);
                 self.client.connection.socket.setKeepAlive(true, 10000);
             }
         });
 
-        client.on('stanza', function(stanza) {
+        client.on('stanza', function (stanza) {
             events.emit('stanza', stanza);
             //console.log(stanza);
             //looking for message stanza
             if (stanza.is('message')) {
 
                 //getting the chat message
-                if(stanza.attrs.type == 'chat') {
+                if (stanza.attrs.type == 'chat') {
 
                     let body = stanza.getChild('body');
-                    if(body) {
+                    if (body) {
                         let message = body.getText();
                         let from = stanza.attrs.from;
                         let id = from.split('/')[0];
@@ -177,7 +183,7 @@ function Dxmpp() {
                     }
 
                     let chatstate = stanza.getChildByAttr('xmlns', NS_CHATSTATES);
-                    if(chatstate) {
+                    if (chatstate) {
                         // Event: chatstate
                         //
                         // Emitted when an incoming <message/> with a chatstate notification
@@ -192,25 +198,28 @@ function Dxmpp() {
                         events.emit('chatstate', stanza.attrs.from, chatstate.name);
                     }
 
-                } else if(stanza.attrs.type == 'groupchat') {
+                } else if (stanza.attrs.type == 'groupchat') {
 
                     let body = stanza.getChild('body');
-                    if(body) {
+                    if (body) {
                         let message = body.getText();
                         let stamp = null;
-                        if(stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
+                        let sender = null;
+                        if (stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
                             stamp = stanza.getChild('x').attrs.stamp;
-                        events.emit('groupchat', get_room_data(stanza), message, stamp);
+                        if (stanza.attrs.sender)
+                            sender = stanza.attrs.sender;
+                        events.emit('groupchat', joinedRooms[get_room_data(stanza).id], message, sender, stamp);
                     }
                 }
-            } else if(stanza.is('presence')) {
+            } else if (stanza.is('presence')) {
 
                 let from = stanza.attrs.from;
-                if(from) {
-                    if(stanza.attrs.type == 'subscribe') {
+                if (from) {
+                    if (stanza.attrs.type == 'subscribe') {
                         //handling incoming subscription requests
                         events.emit('subscribe', from);
-                    } else if(stanza.attrs.type == 'unsubscribe') {
+                    } else if (stanza.attrs.type == 'unsubscribe') {
                         //handling incoming unsubscription requests
                         events.emit('unsubscribe', from);
                     } else {
@@ -218,26 +227,34 @@ function Dxmpp() {
                         let id = from.split('/')[0];
                         let resource = from.split('/')[1];
                         let statusText = stanza.getChildText('status');
-                        let x_elem=stanza.getChild('x');
-                        if (x_elem.attrs.xmlns === NS_ROOMSTATES+'#user') {
-                            let item_elem=x_elem.getChild('item');
-                            let role = item_elem.attrs.role;
-                            events.emit('joined_room',role,get_room_data(stanza))
+                        let x_elem = stanza.getChild('x');
+                        if (x_elem.attrs.xmlns === NS_ROOMSTATES + '#user') {
+                            let room_data = get_room_data(stanza);
+                            if (x_elem.getChild('item') && x_elem.getChild('item').attrs.role){
+                                let item_elem = x_elem.getChild('item');
+                                let role = item_elem.attrs.role;
+                                joinedRooms[room_data.id] = {name: room_data.name, host: room_data.host, role: role};
+                                events.emit('joined_room', role, room_data)
+                            } else {
+                                let bla=stanza.attrs.user_joined.split("@");
+                                let user = {username:bla[0],domain:bla[1]};
+                                events.emit('user_joined_room', user, room_data)
+                            }
                         }
-                        let state = (stanza.getChild('show'))? stanza.getChild('show').getText(): STATUS.ONLINE;
-                        state = (state == 'chat')? STATUS.ONLINE : state;
-                        state = (stanza.attrs.type == 'unavailable')? STATUS.OFFLINE : state;
+                        let state = (stanza.getChild('show')) ? stanza.getChild('show').getText() : STATUS.ONLINE;
+                        state = (state == 'chat') ? STATUS.ONLINE : state;
+                        state = (stanza.attrs.type == 'unavailable') ? STATUS.OFFLINE : state;
                         //checking if this is based on probe
-                        if(probeBuddies[id]) {
+                        if (probeBuddies[id]) {
                             events.emit('probe_' + id, state, statusText);
                             delete probeBuddies[id];
                         } else {
                             //specifying roster changes
-                            if(joinedRooms[id]){
+                            if (joinedRooms[id]) {
                                 let groupBuddy = from.split('/')[1];
                                 events.emit('groupbuddy', id, groupBuddy, state, statusText);
                             } else {
-                                events.emit('buddy', id, state, statusText,resource);
+                                events.emit('buddy', id, state, statusText, resource);
                             }
                         }
 
@@ -259,8 +276,11 @@ function Dxmpp() {
                                     }
                                     capBuddies[fullNode].push(id);
 
-                                    let getCaps = new Stanza('iq', { id: 'disco1', to: from, type: 'get' });
-                                    getCaps.c('query', { xmlns: 'http://jabber.org/protocol/disco#info', node: fullNode });
+                                    let getCaps = new Stanza('iq', {id: 'disco1', to: from, type: 'get'});
+                                    getCaps.c('query', {
+                                        xmlns: 'http://jabber.org/protocol/disco#info',
+                                        node: fullNode
+                                    });
                                     client.send(getCaps);
                                 }
                             }
@@ -270,7 +290,7 @@ function Dxmpp() {
                 }
             } else if (stanza.is('iq')) {
                 if (stanza.getChild('ping', 'urn:xmpp:ping')) {
-                    client.send(new Stanza('iq', { id: stanza.attrs.id, to: stanza.attrs.from, type: 'result' }));
+                    client.send(new Stanza('iq', {id: stanza.attrs.id, to: stanza.attrs.from, type: 'result'}));
                 }
                 // Response to capabilities request?
                 else if (stanza.attrs.id === 'disco1') {
@@ -287,7 +307,9 @@ function Dxmpp() {
 
                     let result = {
                         clientName: identity && identity.attrs.name,
-                        features: features.map(function (feature) { return feature.attrs['let']; })
+                        features: features.map(function (feature) {
+                            return feature.attrs['let'];
+                        })
                     };
 
                     capabilities[node] = result;
@@ -302,14 +324,14 @@ function Dxmpp() {
                 }
 
                 let cb = iqCallbacks[stanza.attrs.id];
-                if(cb) {
+                if (cb) {
                     cb(stanza);
                     delete iqCallbacks[stanza.attrs.id];
                 }
             }
         });
 
-        client.on('error', function(err) {
+        client.on('error', function (err) {
             events.emit('error', err);
         });
 

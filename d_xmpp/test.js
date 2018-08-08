@@ -27,8 +27,8 @@ dxmpp.on('chat', function(from, message) {
     console.log(`received msg: "${message}", from: "${from}"`);
 });
 
-dxmpp.on('groupchat', function(room_data, message, stamp) {
-    console.log(`${room_data.name} ${message}`);
+dxmpp.on('groupchat', function(room_data, message, sender, stamp) {
+    console.log(`${sender} says ${message} in ${room_data.name} chat on ${stamp}`);
     // if(from !== options.nick)
     // dxmpp.send(conference, from +': echo: ' + message, true);
 });
