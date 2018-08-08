@@ -7,10 +7,8 @@ const mainNodeIp = '192.168.1.9';
 const mainNodeAddr = '/ip4/' + mainNodeIp + '/tcp/10333/ipfs/' + mainNodeId;
 
 
-Messenger.on('read_msg', function(conn, push) {
-    Messenger.read_msg((msg) => {
-        console.log(msg);
-    }, conn, push);
+Messenger.on('read_msg', function(msg) {
+    console.log('Received message: ' + msg);
 });
 
 
@@ -77,16 +75,12 @@ const config = {
 
 Messenger.node_start(config);
 
-Messenger.handle(chat_protocol, (protocol, conn, push) => {
+Messenger.handle(chat_protocol, () => {
     console.log("start handling");
     // Messenger.read_msg((msg) => {
     //         console.log("msg: " + msg);
     //         Messenger.send_msg("received msg: " + msg, push);
     //     }, conn, push);
-    Messenger.read_msg((msg) => {
-        console.log("msg: " + msg);
-        // Messenger.send_msg("received msg: " + msg, push);
-    }, conn, push);
 });
 Messenger.pubsub(main_node_channel, (data) => {
     console.log(data);

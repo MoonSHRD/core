@@ -54,7 +54,7 @@ class Messenger {
     pre_start_node(id){
         this.peerInfo = new PeerInfo(id);
         this.peer_id = this.peerInfo.id.toB58String();
-        this.peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/10331');
+        this.peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/10330');
         this.node = new Node({
             peerInfo: this.peerInfo
         });
@@ -90,7 +90,7 @@ class Messenger {
                 conn
             );
             func(conn, p);
-            this.events.emit('read_msg', conn, p);
+            // this.events.emit('read_msg', conn, p);
         });
     }
 
@@ -114,6 +114,7 @@ class Messenger {
 
 
     read_msg(func, conn, p) {
+        let self = this;
         this.$.ready(function() {
             let data_drainer = pull.drain(drain_data, drain_err);
 
@@ -123,8 +124,9 @@ class Messenger {
                 conn,
                 pull.map((data) => {
                     data=data.toString('utf8');
-                    console.log("received message on chat: " + data);
-                    func(data);
+                    // console.log("received message on chat: " + data);
+                    self.events.emit('read_msg', data);
+                    // func(data);
                     return data
                 }),
                 data_drainer
@@ -146,7 +148,7 @@ class Messenger {
     };
 
 
-    handle(handle_protocol, func) {
+    handle(handle_protocol) {
         let self = this;
         this.$.ready(function () {
             self.node.handle(handle_protocol, (protocol, conn) => {
@@ -154,10 +156,10 @@ class Messenger {
                 let p = get_push();
 
                 pull(p, conn);
-                func(protocol, conn, p);
+                self.read_msg(protocol, conn, p);
             });
         });
-        // this.events.emit('pubsub');
+
     };
 
 
