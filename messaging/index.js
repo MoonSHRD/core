@@ -6,18 +6,31 @@ const PeerInfo = require('peer-info');
 const Node = require('./libp2p-bundle.js');
 const pull = require('pull-stream');
 const Pushable = require('pull-pushable');
+const EventEmitter = require('events').EventEmitter;
+const qbox = require('qbox');
 
 function get_push () {
     let p = Pushable((err) => {
         console.log('push stream closed!',err);
     });
 
-    return p
+    return p;
 }
 
 class Messenger {
+    constructor() {
+        this.events = new EventEmitter();
+        this.on = function() {
+            this.events.on.apply(this.events, Array.prototype.slice.call(arguments));
+        };
+        this.removeListener = function() {
+            this.events.removeListener.apply(this.events, Array.prototype.slice.call(arguments));
+        };
+        this.$ = qbox.create();
+    }
 
     node_start(config) {
+
         this.config=config;
 
         if (config.privKey.key) {
@@ -41,7 +54,7 @@ class Messenger {
     pre_start_node(id){
         this.peerInfo = new PeerInfo(id);
         this.peer_id = this.peerInfo.id.toB58String();
-        this.peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/10330');
+        this.peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/10331');
         this.node = new Node({
             peerInfo: this.peerInfo
         });
@@ -50,13 +63,18 @@ class Messenger {
     }
 
     dial(addr,func) {
-        this.node.dial(addr, (err, conn) => {
-            if (err) {
-                throw err
-            }
-            func(conn);
+        let self = this;
+        this.$.ready(function () {
+            self.node.dial(addr, (err, conn) => {
+                if (err) {
+                    throw err
+                }
+                func(conn);
+            });
+            console.log("dialed");
+            // this.events.emit('send_msg');
         });
-        console.log("dialed");
+
     }
 
     dial_protocol(addr,protocol,func){
@@ -71,87 +89,111 @@ class Messenger {
                 p,
                 conn
             );
-            func(conn,p);
+            func(conn, p);
+            this.events.emit('read_msg', conn, p);
         });
     }
 
-    pubsub(channel,func) {
-        this.node.pubsub.subscribe(channel, (msg) => {
-            try {
-                let data = JSON.parse(msg.data.toString());
-                delete data["data"][this.peer_id];
-                func(data);
-            } catch (e) {
-                console.log(e);
-            }
-        }, () => {});
-        console.log("subscribed");
-    }
 
-    read_msg(func,conn,p) {
+    pubsub(channel, func) {
+        let self = this;
+        this.$.ready(function() {
+            self.node.pubsub.subscribe(channel, (msg) => {
+                try {
+                    let data = JSON.parse(msg.data.toString());
+                    delete data["data"][self.peer_id];
+                    func(data);
+                } catch (e) {
+                    console.log(e);
+                }
+            }, () => {});
+            console.log("subscribed");
+            // self.events.emit('dial');
+        })
+    };
 
-        let data_drainer = pull.drain(drain_data,drain_err);
 
-        console.log("now listening for messages");
+    read_msg(func, conn, p) {
+        this.$.ready(function() {
+            let data_drainer = pull.drain(drain_data, drain_err);
 
-        pull(
-            conn,
-            pull.map((data) => {
-                data=data.toString('utf8');
-                console.log("received message on chat: "+data);
-                func(data);
-                return data
-            }),
-            data_drainer
-        );
-
-        function drain_data(data) {
-            if (!data){
-                console.log("sth wrong");
-            }
-            //console.log(data);
-        }
-
-        function drain_err(err){
-            if (err) {
-                console.log(err);
-                p.end();
-                data_drainer.abort(new Error('stop!'));
-            }
-        }
-    }
-
-    handle(handle_protocol,func) {
-        this.node.handle(handle_protocol, (protocol, conn) => {
-
-            let p=get_push();
+            console.log("now listening for messages");
 
             pull(
-                p,
-                conn
+                conn,
+                pull.map((data) => {
+                    data=data.toString('utf8');
+                    console.log("received message on chat: " + data);
+                    func(data);
+                    return data
+                }),
+                data_drainer
             );
-            func(protocol,conn,p)
-        });
-    }
+            function drain_data(data) {
+                if (!data){
+                    console.log("sth wrong");
+                }
+            }
 
-    send_msg(msg,p) {
-        p.push(msg);
-        console.log("send msg: "+msg);
-    }
+            function drain_err(err){
+                if (err) {
+                    console.log(err);
+                    p.end();
+                    data_drainer.abort(new Error('stop!'));
+                }
+            }
+        })
+    };
 
-    peer_disconnect(func){
-        this.node.on('peer:disconnect', (peer) => {
-            this.node.hangUp(peer, ()=>{});
-            func(peer);
+
+    handle(handle_protocol, func) {
+        let self = this;
+        this.$.ready(function () {
+            self.node.handle(handle_protocol, (protocol, conn) => {
+
+                let p = get_push();
+
+                pull(p, conn);
+                func(protocol, conn, p);
+            });
         });
-    }
+        // this.events.emit('pubsub');
+    };
+
+
+    send_msg(msg, p) {
+        this.$.ready(function() {
+            p.push(msg);
+            console.log("send msg: "+msg);
+        })
+    };
+
+
+    peer_disconnect(func) {
+        self = this;
+        self.$.ready(function () {
+            self.node.on('peer:disconnect', (peer) => {
+                self.node.hangUp(peer, ()=>{});
+                func(peer);
+            });
+        })
+    };
+
 
     start() {
-        this.node.start((err) => {
-            if (err) { throw err }
-            this.config.main_func(this);
+        let self = this;
+        self.node.start((err) => {
+            if (err) {throw err}
+            self.$.start();
+            // this.config.main_func(this);
+            // this.handle();
+            // this.events.emit('start_handling');
+        self.on('close', function() {
+            self.$.stop();
+            self.events.emit('close');
+            });
         });
     }
 }
 
-module.exports = Messenger;
+module.exports = new Messenger();
