@@ -15,10 +15,9 @@ function Ether() {
         }
         return account;
     };
-    
+
     this.generate_priv_key=function () {
-        let generationMnemonic = bip39.generateMnemonic();
-        return bip39.mnemonicToSeedHex(generationMnemonic);
+        return new ethers.Wallet().address;
     };
 
 }

@@ -39,15 +39,6 @@ dxmpp.on('error', function (err) {
 
 dxmpp.register_room("hello_world@localhost");
 
-// dxmpp.subscribe("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
-
-// dxmpp.acceptSubscription("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
-// dxmpp.subscribe("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
-
-// dxmpp.subscribe()
-
-// let addr="0x0fEaB3B11b087c9e6f1B861e265b78C693aA100b";
-
 let config={
     jidhost				: 'localhost',
     privKey				: priv,
