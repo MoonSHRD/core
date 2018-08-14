@@ -12,9 +12,9 @@ dxmpp.on('buddy', function(jid, state, statusText) {
     console.log(`${jid} is ${state}` + ( statusText ? state : "" ));
 });
 
-dxmpp.on('joined_room', function(role, room_data) {
-    console.log(`joined ${room_data.name} as ${role}`);
-    dxmpp.send(room_data.id+"@localhost", "fucka", true);
+dxmpp.on('joined_room', function(room_data) {
+    console.log(`joined ${room_data.name} as ${room_data.role}`+ room_data.channel==='1'?' room is a channel':'');
+    // dxmpp.send(room_data.id+"@localhost", "fucka", true);
 });
 
 dxmpp.on('subscribe', function(from) {
@@ -37,7 +37,8 @@ dxmpp.on('error', function (err) {
     console.log(err);
 });
 
-dxmpp.register_room("hello_world@localhost");
+// dxmpp.register_room("hello_world@localhost");
+dxmpp.register_channel("hello_world@localhost");
 
 let config={
     jidhost				: 'localhost',

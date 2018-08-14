@@ -48,21 +48,21 @@ function Dxmpp() {
 
     this.acceptSubscription = function (to) {
         $.ready(function () {
-            let stanza = new Stanza('presence', {to: to, type: 'subscribed'});
+            let stanza = new Stanza('presence', {from:client.options.jid,to: to, type: 'subscribed'});
             client.send(stanza);
         });
     };
 
     this.subscribe = function (to) {
         $.ready(function () {
-            let stanza = new Stanza('presence', {to: to, type: 'subscribe'});
+            let stanza = new Stanza('presence', {from:client.options.jid,to: to, type: 'subscribe'});
             client.send(stanza);
         });
     };
 
     this.send = function (to, message, group) {
         $.ready(function () {
-            let stanza = new Stanza('message', {to: to, type: (group ? 'groupchat' : 'chat')});
+            let stanza = new Stanza('message', {from:client.options.jid,to: to, type: (group ? 'groupchat' : 'chat')});
             stanza.c('body').t(message);
             client.send(stanza);
         });
@@ -84,9 +84,15 @@ function Dxmpp() {
     };
 
     this.register_room = function (name, password) {
-
         $.ready(function () {
-            let stanza = new Stanza('presence', {to: name}).c('x', {xmlns: NS_ROOMSTATES});
+            let stanza = new Stanza('presence', {from:client.options.jid,to: name, channel:'0'}).c('x', {xmlns: NS_ROOMSTATES});
+            client.send(stanza);
+        });
+    };
+
+    this.register_channel = function (name, password) {
+        $.ready(function () {
+            let stanza = new Stanza('presence', {from:client.options.jid,to: name, channel:'1'}).c('x', {xmlns: NS_ROOMSTATES});
             client.send(stanza);
         });
     };
@@ -94,7 +100,7 @@ function Dxmpp() {
     this.invite = function (to, room, reason) {
 
         $.ready(function () {
-            let stanza = new Stanza('message', {to: room}).c('x', {xmlns: NS_ROOMSTATES + '#user'}).c('invite', {to: to});
+            let stanza = new Stanza('message', {from:client.options.jid,to: room}).c('x', {xmlns: NS_ROOMSTATES + '#user'}).c('invite', {to: to});
             if (reason)
                 stanza.c('reason').t(reason);
             client.send(stanza);
@@ -104,7 +110,7 @@ function Dxmpp() {
 
     this.disconnect = function () {
         $.ready(function () {
-            let stanza = new Stanza('presence', {type: 'unavailable'});
+            let stanza = new Stanza('presence', {from:client.options.jid,type: 'unavailable'});
             stanza.c('status').t('Logged out');
             client.send(stanza);
 
@@ -227,18 +233,22 @@ function Dxmpp() {
                         let id = from.split('/')[0];
                         let resource = from.split('/')[1];
                         let statusText = stanza.getChildText('status');
-                        let x_elem = stanza.getChild('x');
-                        if (x_elem.attrs.xmlns === NS_ROOMSTATES + '#user') {
-                            let room_data = get_room_data(stanza);
-                            if (x_elem.getChild('item') && x_elem.getChild('item').attrs.role){
-                                let item_elem = x_elem.getChild('item');
-                                let role = item_elem.attrs.role;
-                                joinedRooms[room_data.id] = {name: room_data.name, host: room_data.host, role: role};
-                                events.emit('joined_room', role, room_data)
-                            } else {
-                                let bla=stanza.attrs.user_joined.split("@");
-                                let user = {username:bla[0],domain:bla[1]};
-                                events.emit('user_joined_room', user, room_data)
+                        if (stanza.getChild('x')){
+                            let x_elem = stanza.getChild('x');
+                            if (x_elem.attrs.xmlns === NS_ROOMSTATES + '#user') {
+                                let room_data = get_room_data(stanza);
+                                if (x_elem.getChild('item') && x_elem.getChild('item').attrs.role){
+                                    let item_elem = x_elem.getChild('item');
+                                    let role = item_elem.attrs.role;
+                                    let channel = stanza.attrs.channel;
+                                    room_data = {id:room_data.id, name: room_data.name, host: room_data.host, role: role, channel:channel};
+                                    joinedRooms[room_data.id] = room_data;
+                                    events.emit('joined_room', room_data)
+                                } else {
+                                    let bla=stanza.attrs.user_joined.split("@");
+                                    let user = {username:bla[0],domain:bla[1]};
+                                    events.emit('user_joined_room', user, room_data)
+                                }
                             }
                         }
                         let state = (stanza.getChild('show')) ? stanza.getChild('show').getText() : STATUS.ONLINE;
