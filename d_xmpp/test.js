@@ -37,8 +37,15 @@ dxmpp.on('error', function (err) {
     console.log(err);
 });
 
+dxmpp.on("find_groups", function(result) {
+    console.log('Here it is your damn groups!');
+    result.forEach(function (group) {
+        console.log(group);
+    });
+});
+
 // dxmpp.register_room("hello_world@localhost");
-dxmpp.register_channel("hello_world@localhost");
+// dxmpp.register_channel("hello_world@localhost");
 
 let config={
     jidhost				: 'localhost',
@@ -50,4 +57,5 @@ let config={
 };
 
 dxmpp.connect(config);
-dxmpp.get_contacts();
+// dxmpp.get_contacts();
+dxmpp.find_group('hello_v_rot');

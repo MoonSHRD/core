@@ -4,7 +4,7 @@ let priv1 = "0x8a9f20e0fce80f895c236a3d987880fc51a5f7870f68ed20c823276faa45c167"
 dxmpp.on('online', function (data) {
     console.log(data);
 });
-let room = '50@localhost';
+let room = 'hello_world@localhost';
 
 let config = {
     jidhost: 'localhost',
