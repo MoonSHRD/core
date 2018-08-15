@@ -14,6 +14,7 @@ let STATUS = {
 
 let NS_CHATSTATES = "http://jabber.org/protocol/chatstates";
 let NS_ROOMSTATES = "http://jabber.org/protocol/muc";
+let NS_DISCSTATES = "http://jabber.org/protocol/disco#items";
 
 function Dxmpp() {
 
@@ -332,6 +333,16 @@ function Dxmpp() {
                         delete capBuddies[node];
                     }
                 }
+                else if (stanza.attrs.type === 'result') {
+                    let query = stanza.getChild('query', 'http://jabber.org/protocol/disco#items');
+                    if (!query) {
+                        return;
+                    }
+                    let result = query.getChildren("item").map(child => child.attrs);
+
+                    events.emit("find_groups", result)
+
+                }
 
                 let cb = iqCallbacks[stanza.attrs.id];
                 if (cb) {
@@ -345,6 +356,15 @@ function Dxmpp() {
             events.emit('error', err);
         });
 
+    };
+
+    this.find_group = function (part_of_name) {
+        $.ready(function () {
+            let stanza = new Stanza('iq', {from: client.options.jid,
+                to: client.options.host, id: "123", type: "get",
+                name: part_of_name}).c('query', {xmlns: NS_DISCSTATES});
+            client.send(stanza);
+        });
     };
 }
 
