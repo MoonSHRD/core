@@ -23,6 +23,7 @@ const vcard = {
 
 let NS_CHATSTATES = "http://jabber.org/protocol/chatstates";
 let NS_ROOMSTATES = "http://jabber.org/protocol/muc";
+let NS_DISCSTATES = "http://jabber.org/protocol/disco#items";
 let NS_vCARDSTATES = "vcard-temp";
 
 function parse_vcard(data,element) {
@@ -118,6 +119,15 @@ function Dxmpp() {
     this.register_channel = function (name, password) {
         $.ready(function () {
             let stanza = new Stanza('presence', {from:client.options.jid,to: name, channel:'1'}).c('x', {xmlns: NS_ROOMSTATES});
+            client.send(stanza);
+        });
+    };
+
+    this.find_group = function (part_of_name) {
+        $.ready(function () {
+            let stanza = new Stanza('iq', {from: client.options.jid,
+                to: client.options.host, id: "123", type: "get",
+                name: part_of_name}).c('query', {xmlns: NS_DISCSTATES});
             client.send(stanza);
         });
     };
@@ -358,6 +368,12 @@ function Dxmpp() {
                     if (card) {
                         let data = {};
                         events.emit('received_vcard',parse_vcard(data,card));
+                    }
+
+                    const query = stanza.getChild('query', 'http://jabber.org/protocol/disco#items');
+                    if (!query) {
+                        let result = query.getChildren("item").map(child => child.attrs);
+                        events.emit("find_groups", result)
                     }
                 }
                 // Response to capabilities request?

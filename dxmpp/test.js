@@ -41,8 +41,17 @@ dxmpp.on('received_vcard', function (data) {
     console.log(data);
 });
 
-dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich');
-dxmpp.get_vcard(`${addr}@localhost`);
+// dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich');
+// dxmpp.get_vcard(`${addr}@localhost`);
+
+dxmpp.on("find_groups", function(result) {
+    console.log('Here it is your damn groups!');
+    result.forEach(function (group) {
+        console.log(group);
+    });
+});
+
+// dxmpp.find_group('hello_v_rot');
 
 // dxmpp.register_room("hello_world@localhost");
 // dxmpp.register_channel("hello_world@localhost");
