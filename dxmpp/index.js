@@ -14,6 +14,7 @@ let STATUS = {
 
 let NS_CHATSTATES = "http://jabber.org/protocol/chatstates";
 let NS_ROOMSTATES = "http://jabber.org/protocol/muc";
+let NS_vCARDSTATES = "vcard-temp";
 
 function Dxmpp() {
 
@@ -97,15 +98,37 @@ function Dxmpp() {
         });
     };
 
-    this.invite = function (to, room, reason) {
+    this.set_vcard = function (firstname, lastname, bio, img,) {
+        $.ready(function () {
+            let stanza = new Stanza('iq', {id:"v2", type:"set"})
+                .c('vCard', {xmlns: NS_vCARDSTATES}).t(
+                   `<FN>${firstname} ${lastname}</FN>
+                    <N>
+                      <FAMILY>${lastname}</FAMILY>
+                      <GIVEN>${firstname}</GIVEN>
+                      <MIDDLE/>
+                    </N>` + (bio?
+                   `<DESC>
+                      ${bio}
+                    </DESC>` : "") + (img?
+                   `<PHOTO>
+                      <TYPE>image/jpeg</TYPE>
+                      <BINVAL>
+                        ${img}
+                      </BINVAL>
+                    </PHOTO>` : "")
+                );
+            client.send(stanza);
+        });
+    };
 
+    this.invite = function (to, room, reason) {
         $.ready(function () {
             let stanza = new Stanza('message', {from:client.options.jid,to: room}).c('x', {xmlns: NS_ROOMSTATES + '#user'}).c('invite', {to: to});
             if (reason)
                 stanza.c('reason').t(reason);
             client.send(stanza);
         });
-
     };
 
     this.disconnect = function () {
