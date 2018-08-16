@@ -12,9 +12,33 @@ let STATUS = {
     OFFLINE: "offline"
 };
 
+const vcard = {
+    FN:'full_name',
+    TYPE:'avatar_type',
+    BINVAL:'avatar',
+    DESC:'bio',
+    GIVEN:'firstname',
+    FAMILY:'lastname',
+};
+
 let NS_CHATSTATES = "http://jabber.org/protocol/chatstates";
 let NS_ROOMSTATES = "http://jabber.org/protocol/muc";
 let NS_vCARDSTATES = "vcard-temp";
+
+function parse_vcard(data,element) {
+    element.children.forEach(function (element) {
+        let el = vcard[element.name];
+        if (el) {
+            data[el]=element.text();
+        }
+
+        if (element.children){
+            data=parse_vcard(data,element)
+        }
+        return data
+    });
+    return data;
+}
 
 function Dxmpp() {
 
@@ -101,23 +125,28 @@ function Dxmpp() {
     this.set_vcard = function (firstname, lastname, bio, img,) {
         $.ready(function () {
             let stanza = new Stanza('iq', {id:"v2", type:"set"})
-                .c('vCard', {xmlns: NS_vCARDSTATES}).t(
-                   `<FN>${firstname} ${lastname}</FN>
-                    <N>
-                      <FAMILY>${lastname}</FAMILY>
-                      <GIVEN>${firstname}</GIVEN>
-                      <MIDDLE/>
-                    </N>` + (bio?
-                   `<DESC>
-                      ${bio}
-                    </DESC>` : "") + (img?
-                   `<PHOTO>
-                      <TYPE>image/jpeg</TYPE>
-                      <BINVAL>
-                        ${img}
-                      </BINVAL>
-                    </PHOTO>` : "")
-                );
+                .c('vCard',{xmlns:NS_vCARDSTATES})
+                .c('FN').t(firstname+" "+lastname).up()
+                .c('N')
+                .c('FAMILY').t(lastname).up()
+                .c('GIVEN').t(firstname).up()
+                .c('MIDDLE').up().up();
+            if (bio) {
+                stanza.c('DESC').t(bio).up();
+            }
+            if (img) {
+                stanza.c('PHOTO')
+                    .c('TYPE').t(`image/jpeg`).up()
+                    .c('BINVAL').t(img);
+            }
+            client.send(stanza);
+        });
+    };
+
+    this.get_vcard = function (to) {
+        $.ready(function () {
+            let stanza = new Stanza('iq', {id:"v3", to:to, type:"get"})
+                .c('vCard',{xmlns:NS_vCARDSTATES})
             client.send(stanza);
         });
     };
@@ -324,6 +353,12 @@ function Dxmpp() {
             } else if (stanza.is('iq')) {
                 if (stanza.getChild('ping', 'urn:xmpp:ping')) {
                     client.send(new Stanza('iq', {id: stanza.attrs.id, to: stanza.attrs.from, type: 'result'}));
+                } else if (stanza.attrs.type === 'result') {
+                    const card = stanza.getChild('vCard',NS_vCARDSTATES);
+                    if (card) {
+                        let data = {};
+                        events.emit('received_vcard',parse_vcard(data,card));
+                    }
                 }
                 // Response to capabilities request?
                 else if (stanza.attrs.id === 'disco1') {

@@ -37,7 +37,12 @@ dxmpp.on('error', function (err) {
     console.log(err);
 });
 
+dxmpp.on('received_vcard', function (data) {
+    console.log(data);
+});
+
 dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich');
+dxmpp.get_vcard(`${addr}@localhost`);
 
 // dxmpp.register_room("hello_world@localhost");
 // dxmpp.register_channel("hello_world@localhost");
