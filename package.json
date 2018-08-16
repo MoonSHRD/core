@@ -1,6 +1,6 @@
 {
   "name": "moonshard_core",
-  "version": "0.0.2",
+  "version": "0.0.6",
   "description": "core for moonshard messenger",
   "main": "index.js",
   "scripts": {

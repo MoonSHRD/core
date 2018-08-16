@@ -17,7 +17,7 @@ function Ether() {
     };
 
     this.generate_priv_key=function () {
-        return new ethers.Wallet().address;
+        return this.generate_account().privateKey;
     };
 
 }
