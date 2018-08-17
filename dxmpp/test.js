@@ -41,8 +41,9 @@ dxmpp.on('received_vcard', function (data) {
     console.log(data);
 });
 
-// dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich');
-// dxmpp.get_vcard(`${addr}@localhost`);
+dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich');
+dxmpp.get_vcard(`${addr}@localhost`);
+dxmpp.register_channel("hello_world@localhost");
 
 dxmpp.on("find_groups", function(result) {
     console.log('Here it is your damn groups!');
@@ -51,10 +52,9 @@ dxmpp.on("find_groups", function(result) {
     });
 });
 
-// dxmpp.find_group('hello_v_rot');
+dxmpp.find_group('hello');
 
 // dxmpp.register_room("hello_world@localhost");
-// dxmpp.register_channel("hello_world@localhost");
 
 let config={
     jidhost				: 'localhost',

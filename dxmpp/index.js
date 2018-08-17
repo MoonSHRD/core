@@ -305,11 +305,13 @@ function Dxmpp() {
                                     let channel = stanza.attrs.channel;
                                     room_data = {id:room_data.id, name: room_data.name, host: room_data.host, role: role, channel:channel};
                                     joinedRooms[room_data.id] = room_data;
-                                    events.emit('joined_room', room_data)
+                                    events.emit('joined_room', room_data);
+                                    return;
                                 } else {
                                     let bla=stanza.attrs.user_joined.split("@");
                                     let user = {username:bla[0],domain:bla[1]};
-                                    events.emit('user_joined_room', user, room_data)
+                                    events.emit('user_joined_room', user, room_data);
+                                    return;
                                 }
                             }
                         }
@@ -371,7 +373,7 @@ function Dxmpp() {
                     }
 
                     const query = stanza.getChild('query', 'http://jabber.org/protocol/disco#items');
-                    if (!query) {
+                    if (query) {
                         let result = query.getChildren("item").map(child => child.attrs);
                         events.emit("find_groups", result)
                     }
