@@ -115,9 +115,8 @@ if (typeof atob === 'function') {
  */
 function Client(options) {
     this.account=new ethers.Wallet(options.privKey);
-
-    options.jid=this.account.address.toLowerCase()+"@"+options.jidhost;
     options.username=this.account.address.toLowerCase();
+    options.jid=options.username+"@"+options.jidhost;
     this.options = options;
 
     if (this.options.autostart !== false) this.connect()

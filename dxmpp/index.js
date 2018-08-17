@@ -19,6 +19,8 @@ const vcard = {
     DESC:'bio',
     GIVEN:'firstname',
     FAMILY:'lastname',
+    ADR:'address',
+    DOM:'domain',
 };
 
 let NS_CHATSTATES = "http://jabber.org/protocol/chatstates";
@@ -132,11 +134,13 @@ function Dxmpp() {
         });
     };
 
-    this.set_vcard = function (firstname, lastname, bio, img,) {
+    this.set_vcard = function (firstname, lastname, bio, img) {
         $.ready(function () {
             let stanza = new Stanza('iq', {id:"v2", type:"set"})
                 .c('vCard',{xmlns:NS_vCARDSTATES})
                 .c('FN').t(firstname+" "+lastname).up()
+                .c('ADR').t(client.options.username).up()
+                .c('DOM').t(client.options.jidhost).up()
                 .c('N')
                 .c('FAMILY').t(lastname).up()
                 .c('GIVEN').t(firstname).up()
