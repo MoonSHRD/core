@@ -151,7 +151,7 @@ function Dxmpp() {
             if (img) {
                 stanza.c('PHOTO')
                     .c('TYPE').t(`image/jpeg`).up()
-                    .c('BINVAL').t(img);
+                    .c('BINVAL').t(img).up().up();
             }
             client.send(stanza);
         });
@@ -172,6 +172,14 @@ function Dxmpp() {
                 stanza.c('reason').t(reason);
             client.send(stanza);
         });
+    };
+
+    this.get_address = function () {
+        if (client) {
+            return client.options.username;
+        } else {
+            return undefined;
+        }
     };
 
     this.disconnect = function () {
