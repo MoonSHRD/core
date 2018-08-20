@@ -288,8 +288,9 @@ Client.prototype._handleAuthState = function (stanza) {
         );
         //data.pubKey=this.account.pubKey;
         data.username=this.options.username;
-        data.firstname=this.options.firstname;
-        data.lastname=this.options.lastname;
+        // data.
+        // data.firstname=this.options.firstname?this.options.firstname:'';
+        // data.lastname=this.options.lastname;
         let responseMsg = encodeDict(data);
         let response = new Element('response', {xmlns: NS_AUTH}).t(responseMsg)
         this.send(response)

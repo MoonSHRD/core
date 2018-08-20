@@ -40,10 +40,10 @@ dxmpp.on('error', function (err) {
 });
 
 dxmpp.on('received_vcard', function (data) {
-    if (data.address=dxmpp.get_address()){
+    if (data.address===dxmpp.get_address()){
         console.log(`It's me!!!!`);
     }
-    console.log(data);
+    // console.log(data);
 });
 
 // dxmpp.register_channel("hello_world@localhost");
@@ -64,13 +64,13 @@ let config={
     privKey				: priv,
     host				: 'localhost',
     port				: 5222,
-    firstname		    : "Nikita",
-    lastname		    : "Metelkin"
+    // firstname		    : "Nikita",
+    // lastname		    : "Metelkin"
 };
 
 dxmpp.connect(config);
 dxmpp.get_contacts();
 
 
-dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich');
-dxmpp.get_vcard(`${addr}@localhost`);
+// dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich');
+dxmpp.get_vcard(`0x8038f94dcc71b45b177a2e4578d26383573138be@localhost`);
