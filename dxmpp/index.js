@@ -314,8 +314,9 @@ function Dxmpp() {
                                 if (x_elem.getChild('item') && x_elem.getChild('item').attrs.role){
                                     let item_elem = x_elem.getChild('item');
                                     let role = item_elem.attrs.role;
+                                    let avatar = stanza.attrs.avatar;
                                     let channel = stanza.attrs.channel;
-                                    room_data = {id:room_data.id, name: room_data.name, host: room_data.host, role: role, channel:channel};
+                                    room_data = {id:room_data.id, name: room_data.name, host: room_data.host, role: role, channel:channel, avatar:avatar};
                                     joinedRooms[room_data.id] = room_data;
                                     events.emit('joined_room', room_data);
                                     return;

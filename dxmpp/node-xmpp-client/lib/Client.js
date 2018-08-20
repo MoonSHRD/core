@@ -279,7 +279,7 @@ Client.prototype._handleBindState = function (stanza) {
 
 Client.prototype._handleAuthState = function (stanza) {
     if (stanza.is('challenge', NS_AUTH)) {
-        let challengeMsg = stanza.getText()
+        let challengeMsg = stanza.getText();
         let data = parseDict(challengeMsg);
         let messageHash = EthCrypto.hash.keccak256(data.nonce);
         data.signature = EthCrypto.sign(

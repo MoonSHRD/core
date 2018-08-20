@@ -15,6 +15,7 @@ dxmpp.on('buddy', function(jid, state, statusText) {
 });
 
 dxmpp.on('joined_room', function(room_data) {
+    console.log(room_data);
     console.log(`joined ${room_data.name} as ${room_data.role}`+ room_data.channel==='1'?' room is a channel':'');
     // dxmpp.send(room_data.id+"@localhost", "fucka", true);
 });
@@ -55,6 +56,7 @@ dxmpp.on("find_groups", function(result) {
     });
 });
 
+dxmpp.register_channel("hello_world@localhost");
 dxmpp.find_group('hello');
 
 // dxmpp.register_room("hello_world@localhost");
