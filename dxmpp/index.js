@@ -220,6 +220,17 @@ function Dxmpp() {
         return {id, host, name}
     }
 
+    // this.parse_jid = function (jid) {
+    //     let x, y, z;
+    //     let shit = stanza.attrs.from.split('/');
+    //     z = shit[1];
+    //     shit = shit[0];
+    //     shit = shit.split('@');
+    //     x = shit[0];
+    //     y = shit[1];
+    //     return {x,y,z}
+    // };
+
     this.connect = function (params) {
 
         config = params;
