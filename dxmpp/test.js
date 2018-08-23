@@ -56,7 +56,7 @@ dxmpp.on("find_groups", function(result) {
     });
 });
 
-// dxmpp.register_channel("hello world","localhost");
+dxmpp.register_channel("!@#$%^&*()_+| $%^","localhost");
 dxmpp.find_group('hello');
 
 // dxmpp.register_room("hello_world@localhost");
