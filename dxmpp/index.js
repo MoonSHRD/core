@@ -118,9 +118,9 @@ function Dxmpp() {
         });
     };
 
-    this.register_channel = function (name, password) {
+    this.register_channel = function (name, domain, password) {
         $.ready(function () {
-            let stanza = new Stanza('presence', {from:client.options.jid,to: name, channel:'1'}).c('x', {xmlns: NS_ROOMSTATES});
+            let stanza = new Stanza('presence', {from:client.options.jid,to: encodeURI(name)+"@"+domain, channel:'1'}).c('x', {xmlns: NS_ROOMSTATES});
             client.send(stanza);
         });
     };
@@ -327,7 +327,7 @@ function Dxmpp() {
                                     let role = item_elem.attrs.role;
                                     let avatar = stanza.attrs.avatar;
                                     let channel = stanza.attrs.channel;
-                                    room_data = {id:room_data.id, name: room_data.name, host: room_data.host, role: role, channel:channel, avatar:avatar};
+                                    room_data = {id:room_data.id, name: decodeURI(room_data.name), host: room_data.host, role: role, channel:channel, avatar:avatar};
                                     joinedRooms[room_data.id] = room_data;
                                     events.emit('joined_room', room_data);
                                     return;
@@ -398,8 +398,20 @@ function Dxmpp() {
 
                     const query = stanza.getChild('query', 'http://jabber.org/protocol/disco#items');
                     if (query) {
-                        let result = query.getChildren("item").map(child => child.attrs);
-                        events.emit("find_groups", result)
+                        let resda = [];
+                        query.getChildren("item").forEach(function (element) {
+                            element.attrs.name=decodeURI(element.attrs.name);
+                            resda.push(element.attrs);
+                        });
+                        // let result = query.getChildren("item").map(child => child.attrs);
+                        // result.forEach(function (element) {
+                        //     for (let attr in element){
+                        //         if (attr==='name') {
+                        //             re
+                        //         }
+                        //     }
+                        // });
+                        events.emit("find_groups", resda)
                     }
                 }
                 // Response to capabilities request?
