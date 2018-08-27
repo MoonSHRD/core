@@ -1,6 +1,6 @@
 {
   "name": "moonshard_core",
-  "version": "0.0.1",
+  "version": "0.1.10",
   "description": "core for moonshard messenger",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/MoonSHRD/core.git"
   },
-  "author": "",
+  "author": "Lonny95 (https://github.com/Lonny95)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/MoonSHRD/core/issues"

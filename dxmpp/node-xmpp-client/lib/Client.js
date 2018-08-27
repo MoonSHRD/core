@@ -8,12 +8,6 @@ let JID = core.JID
 let Stanza = core.Stanza
 let Element = core.Element
 let inherits = core.inherits
-let sasl = require('./sasl')
-let Anonymous = require('./authentication/anonymous')
-let Plain = require('./authentication/plain')
-let DigestMD5 = require('./authentication/digestmd5')
-let XOAuth2 = require('./authentication/xoauth2')
-let External = require('./authentication/external')
 let exec = require('child_process').exec
 let debug = require('debug')('xmpp:client')
 let path = require('path')
@@ -120,20 +114,10 @@ if (typeof atob === 'function') {
  *
  */
 function Client(options) {
-
-
     this.account=new ethers.Wallet(options.privKey);
-    //this.account.address=this.account.address.toLowerCase();
-    // let signingKey = new SigningKey(options.privKey);
-    //this.account.pubKey=SigningKey.getPublicKey(options.privKey, false);
-    options.jid=this.account.address+"@"+options.jidhost;
-    options.username=this.account.address;
+    options.username=this.account.address.toLowerCase();
+    options.jid=options.username+"@"+options.jidhost;
     this.options = options;
-    // this.availableSaslMechanisms = [
-    //     XOAuth2, External, DigestMD5, Plain, Anonymous
-    // ]
-
-
 
     if (this.options.autostart !== false) this.connect()
 }
@@ -295,7 +279,7 @@ Client.prototype._handleBindState = function (stanza) {
 
 Client.prototype._handleAuthState = function (stanza) {
     if (stanza.is('challenge', NS_AUTH)) {
-        let challengeMsg = stanza.getText()
+        let challengeMsg = stanza.getText();
         let data = parseDict(challengeMsg);
         let messageHash = EthCrypto.hash.keccak256(data.nonce);
         data.signature = EthCrypto.sign(
@@ -304,8 +288,9 @@ Client.prototype._handleAuthState = function (stanza) {
         );
         //data.pubKey=this.account.pubKey;
         data.username=this.options.username;
-        data.firstname=this.options.firstname;
-        data.lastname=this.options.lastname;
+        // data.
+        // data.firstname=this.options.firstname?this.options.firstname:'';
+        // data.lastname=this.options.lastname;
         let responseMsg = encodeDict(data);
         let response = new Element('response', {xmlns: NS_AUTH}).t(responseMsg)
         this.send(response)
@@ -375,7 +360,7 @@ Client.prototype._handlePreAuthState = function () {
     attrs.xmlns = NS_AUTH;
     // attrs.username = this.account.username;
     //attrs.mechanism = this.mech.name
-    this.send(new Element('auth', attrs).t(this.account.address))
+    this.send(new Element('auth', attrs).t(this.options.username))
     // } else {
     //   this.emit('error', new Error('No usable SASL mechanism'))
     // }
