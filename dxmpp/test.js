@@ -16,7 +16,8 @@ dxmpp.on('buddy', function(jid, state, statusText) {
 
 dxmpp.on('joined_room', function(room_data) {
     console.log(room_data);
-    console.log(`joined ${room_data.name} as ${room_data.role}`+ room_data.channel==='1'?' room is a channel':'');
+    console.log(`joined ${room_data.name} as ${room_data.role}`);//+ room_data.channel==='1'?' room is a channel':'');
+    dxmpp.send(room_data.id+"@"+room_data.domain,"hello",true);
     // dxmpp.send(room_data.id+"@localhost", "fucka", true);
 });
 
@@ -31,7 +32,7 @@ dxmpp.on('chat', function(from, message) {
 });
 
 dxmpp.on('groupchat', function(room_data, message, sender, stamp) {
-    console.log(`${sender} says ${message} in ${room_data.name} chat on ${stamp}`);
+    console.log(`${sender.address} says ${message} in ${room_data.name} chat on ${stamp}`);
     // if(from !== options.nick)
     // dxmpp.send(conference, from +': echo: ' + message, true);
 });
@@ -49,16 +50,15 @@ dxmpp.on('received_vcard', function (data) {
 
 // dxmpp.register_channel("hello_world@localhost");
 
-dxmpp.on("find_groups", function(result) {
-    console.log('Here it is your damn groups!');
-    result.forEach(function (group) {
-        console.log(group);
-    });
-});
+// dxmpp.on("find_groups", function(result) {
+//     console.log('Here it is your damn groups!');
+//     result.forEach(function (group) {
+//         console.log(group);
+//     });
+// });
 
 dxmpp.register_channel("!@#$%^&*()_+| $%^","localhost");
-dxmpp.find_group('hello');
-
+// dxmpp.find_group('hello');
 // dxmpp.register_room("hello_world@localhost");
 
 let config={

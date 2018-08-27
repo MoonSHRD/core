@@ -129,7 +129,7 @@ function Dxmpp() {
         $.ready(function () {
             let stanza = new Stanza('iq', {from: client.options.jid,
                 to: client.options.host, id: "123", type: "get",
-                name: part_of_name}).c('query', {xmlns: NS_DISCSTATES});
+                name: encodeURIComponent(part_of_name)}).c('query', {xmlns: NS_DISCSTATES});
             client.send(stanza);
         });
     };
@@ -160,7 +160,7 @@ function Dxmpp() {
     this.get_vcard = function (to) {
         $.ready(function () {
             let stanza = new Stanza('iq', {id:"v3", to:to, type:"get"})
-                .c('vCard',{xmlns:NS_vCARDSTATES})
+                .c('vCard',{xmlns:NS_vCARDSTATES});
             client.send(stanza);
         });
     };
@@ -298,8 +298,14 @@ function Dxmpp() {
                         let sender = null;
                         if (stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
                             stamp = stanza.getChild('x').attrs.stamp;
-                        if (stanza.attrs.sender)
+                        if (stanza.attrs.sender) {
                             sender = stanza.attrs.sender;
+                            if (sender.split('/')) {
+                                sender = sender.split('/')[0]
+                            }
+                            sender=sender.split('@');
+                            sender={address:sender[0],domain:sender[1]}
+                        }
                         events.emit('groupchat', joinedRooms[get_room_data(stanza).id], message, sender, stamp);
                     }
                 }
@@ -327,7 +333,7 @@ function Dxmpp() {
                                     let role = item_elem.attrs.role;
                                     let avatar = stanza.attrs.avatar;
                                     let channel = stanza.attrs.channel;
-                                    room_data = {id:room_data.id, name: decodeURIComponent(room_data.name), host: room_data.host, role: role, channel:channel, avatar:avatar};
+                                    room_data = {id:room_data.id, name: decodeURIComponent(room_data.name), domain: room_data.host, role: role, channel:channel, avatar:avatar};
                                     joinedRooms[room_data.id] = room_data;
                                     events.emit('joined_room', room_data);
                                     return;
