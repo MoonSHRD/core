@@ -19,11 +19,12 @@ let config={
     port				: 5222
 };
 
-d_xmpp.subscribe("penis@localhost");
+// d_xmpp.subscribe("penis@localhost");
 
 d_xmpp.start(config);
 
 //d_xmpp.send_msg("penis@localhost","sosi");
+console.log(d_xmpp.take_time());
 
 //
 // xmpp.on('online', function(data) {

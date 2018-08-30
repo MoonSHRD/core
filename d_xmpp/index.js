@@ -53,7 +53,12 @@ function D_xmpp() {
         xmpp.connect(config);
 
         xmpp.getRoster();
-    }
+    };
+
+    this.take_time = function () {
+        let now = new Date();
+        return `${now.getHours()}:${now.getMinutes()}`
+    };
 }
 
 module.exports = new D_xmpp();
