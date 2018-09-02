@@ -100,9 +100,9 @@ function Dxmpp() {
 
         $.ready(function () {
             let room = to.split('/')[0];
-            if (!joinedRooms[room]) {
-                joinedRooms[room] = true;
-            }
+            // if (!joinedRooms[room]) {
+            //     joinedRooms[room] = true;
+            // }
             let stanza = new Stanza('presence', {from:client.options.jid,to: to}).c('x', {xmlns: NS_ROOMSTATES});
             // XEP-0045 7.2.6 Password-Protected Rooms
             if (password != null && password != "")
@@ -212,10 +212,9 @@ function Dxmpp() {
             id = shit2[0];
             host = shit2[1];
         } else {
-            id=stanza.attrs.from.split('@')[0];
-            let data = joinedRooms[id];
-            name=data.name;
-            host=data.host;
+            let shit2 = stanza.attrs.from.split('@');
+            id = shit2[0];
+            host = shit2[1];
         }
         return {id, host, name}
     }
@@ -306,7 +305,7 @@ function Dxmpp() {
                             sender=sender.split('@');
                             sender={address:sender[0],domain:sender[1]}
                         }
-                        events.emit('groupchat', joinedRooms[get_room_data(stanza).id], message, sender, stamp);
+                        events.emit('groupchat', get_room_data(stanza), message, sender, stamp);
                     }
                 }
             } else if (stanza.is('presence')) {
@@ -334,7 +333,7 @@ function Dxmpp() {
                                     let avatar = stanza.attrs.avatar;
                                     let channel = stanza.attrs.channel;
                                     room_data = {id:room_data.id, name: decodeURIComponent(room_data.name), domain: room_data.host, role: role, channel:channel, avatar:avatar};
-                                    joinedRooms[room_data.id] = room_data;
+                                    //joinedRooms[room_data.id] = room_data;
                                     events.emit('joined_room', room_data);
                                     return;
                                 } else {
