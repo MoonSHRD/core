@@ -56,6 +56,12 @@ function Dxmpp() {
     let $ = qbox.create();
 
 
+    this.take_time = function () {
+        let now = new Date();
+        return `${now.getHours()}:${now.getMinutes()}`
+    };
+
+
     let events = new EventEmitter();
     this.on = function () {
         events.on.apply(events, Array.prototype.slice.call(arguments));

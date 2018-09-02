@@ -152,6 +152,11 @@ class Messenger {
             this.config.main_func(this);
         });
     }
+
+    take_time() {
+        let now = new Date();
+        return `${now.getHours()}:${now.getMinutes()}`
+    };
 }
 
 module.exports = Messenger;
