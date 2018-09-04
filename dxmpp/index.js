@@ -124,9 +124,10 @@ function Dxmpp() {
         });
     };
 
-    this.register_channel = function (name, domain, password) {
+    this.register_channel = function (name, domain, contractaddress, password) {
         $.ready(function () {
-            let stanza = new Stanza('presence', {from:client.options.jid,to: encodeURIComponent(name)+"@"+domain, channel:'1'}).c('x', {xmlns: NS_ROOMSTATES});
+            let stanza = new Stanza('presence', {from:client.options.jid,to: encodeURIComponent(name)+"@"+domain, contractaddress:contractaddress, channel:'1'}).
+            c('x', {xmlns: NS_ROOMSTATES});
             client.send(stanza);
         });
     };
@@ -338,7 +339,8 @@ function Dxmpp() {
                                     let role = item_elem.attrs.role;
                                     let avatar = stanza.attrs.avatar;
                                     let channel = stanza.attrs.channel;
-                                    room_data = {id:room_data.id, name: decodeURIComponent(room_data.name), domain: room_data.host, role: role, channel:channel, avatar:avatar};
+                                    let contractaddress = stanza.attrs.contractaddress;
+                                    room_data = {id:room_data.id, name: decodeURIComponent(room_data.name), domain: room_data.host, contractaddress:contractaddress, role: role, channel:channel, avatar:avatar};
                                     //joinedRooms[room_data.id] = room_data;
                                     events.emit('joined_room', room_data);
                                     return;
