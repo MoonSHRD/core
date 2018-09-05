@@ -181,12 +181,23 @@ function Dxmpp() {
         });
     };
 
+    this.send_suggesstion = function (to, text) {
+        $.ready(function () {
+            let stanza = new Stanza('iq', {id:'suggest', from:client.options.jid, to: to, type:'set'})
+                .c('x', {xmlns: NS_ROOMSTATES + '#event'})
+                .c('item', {type:'suggestion',group: to}).t(text);
+            client.send(stanza);
+        });
+    };
+
     this.get_address = function () {
-        if (client) {
-            return client.options.username;
-        } else {
-            return undefined;
-        }
+        $.ready(function () {
+            if (client) {
+                return client.options.username;
+            } else {
+                return undefined;
+            }
+        });
     };
 
     this.disconnect = function () {
@@ -455,6 +466,28 @@ function Dxmpp() {
                             events.emit('buddyCapabilities', id, result);
                         });
                         delete capBuddies[node];
+                    }
+                } else {
+                    if (stanza.getChild('x')) {
+                        let id=stanza.attrs.from.split('/')[0];
+                        // console.log(id);
+                        let x_elem = stanza.getChild('x');
+                        if (x_elem.attrs.xmlns === NS_ROOMSTATES + '#event') {
+                            let item_elem = x_elem.getChild('item');
+                            switch (item_elem.attrs.type) {
+                                case "suggestion":
+                                    const bla = id.split('@');
+                                    const group_data = item_elem.attrs.group.split('@');
+                                    let user = {id: bla[0], domain: bla[1]};
+                                    events.emit('post_suggested', {
+                                        user: user,
+                                        group: {id:group_data[0],domain:group_data[1]},
+                                        text: item_elem.getText()
+                                    });
+                                    break;
+                            }
+                            return
+                        }
                     }
                 }
 
