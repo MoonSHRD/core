@@ -191,13 +191,11 @@ function Dxmpp() {
     };
 
     this.get_address = function () {
-        $.ready(function () {
-            if (client) {
-                return client.options.username;
-            } else {
-                return undefined;
-            }
-        });
+        if (client) {
+            return client.options.username;
+        } else {
+            return undefined;
+        }
     };
 
     this.disconnect = function () {

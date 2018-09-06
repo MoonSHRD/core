@@ -69,7 +69,7 @@ dxmpp.register_channel("живи до конца");
 let config={
     jidhost				: 'localhost',
     privKey				: priv,
-    host				: 'localhost',
+    host				: '142.93.226.135',
     port				: 5222,
     // firstname		    : "Nikita",
     // lastname		    : "Metelkin"
