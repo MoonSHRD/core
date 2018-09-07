@@ -43,6 +43,29 @@ function parse_vcard(data,element) {
     return data;
 }
 
+String.prototype.hexEncode = function(){
+    let hex, i;
+
+    let result = "";
+    for (i=0; i<this.length; i++) {
+        hex = this.charCodeAt(i).toString(16);
+        result += ("000"+hex).slice(-4);
+    }
+
+    return result
+}
+
+String.prototype.hexDecode = function(){
+    let j;
+    let hexes = this.match(/.{1,4}/g) || [];
+    let back = "";
+    for(j = 0; j<hexes.length; j++) {
+        back += String.fromCharCode(parseInt(hexes[j], 16));
+    }
+
+    return back;
+}
+
 function Dxmpp() {
 
     let self = this;
@@ -126,7 +149,7 @@ function Dxmpp() {
 
     this.register_channel = function (name, domain, contractaddress, password) {
         $.ready(function () {
-            let stanza = new Stanza('presence', {from:client.options.jid,to: encodeURIComponent(name)+"@"+domain, contractaddress:contractaddress, channel:'1'}).
+            let stanza = new Stanza('presence', {from:client.options.jid,to: name.hexEncode()+"@"+domain, contractaddress:contractaddress, channel:'1'}).
             c('x', {xmlns: NS_ROOMSTATES});
             client.send(stanza);
         });
@@ -136,7 +159,7 @@ function Dxmpp() {
         $.ready(function () {
             let stanza = new Stanza('iq', {from: client.options.jid,
                 to: client.options.host, id: "123", type: "get",
-                name: encodeURIComponent(part_of_name)}).c('query', {xmlns: NS_DISCSTATES});
+                name: part_of_name.hexEncode()}).c('query', {xmlns: NS_DISCSTATES});
             client.send(stanza);
         });
     };
@@ -349,7 +372,7 @@ function Dxmpp() {
                                     let avatar = stanza.attrs.avatar;
                                     let channel = stanza.attrs.channel;
                                     let contractaddress = stanza.attrs.contractaddress;
-                                    room_data = {id:room_data.id, name: decodeURIComponent(room_data.name), domain: room_data.host, contractaddress:contractaddress, role: role, channel:channel, avatar:avatar};
+                                    room_data = {id:room_data.id, name: room_data.name.hexDecode(), domain: room_data.host, contractaddress:contractaddress, role: role, channel:channel, avatar:avatar};
                                     //joinedRooms[room_data.id] = room_data;
                                     events.emit('joined_room', room_data);
                                     return;
@@ -422,7 +445,7 @@ function Dxmpp() {
                     if (query) {
                         let resda = [];
                         query.getChildren("item").forEach(function (element) {
-                            element.attrs.name=decodeURIComponent(element.attrs.name);
+                            element.attrs.name=element.attrs.name.hexDecode();
                             resda.push(element.attrs);
                         });
                         // let result = query.getChildren("item").map(child => child.attrs);

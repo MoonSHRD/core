@@ -52,7 +52,10 @@ dxmpp.on('post_suggested', function (data) {
     console.log(`user ${data.user.id} suggested ${data.text} on ${data.group.id}`)
 });
 
-dxmpp.register_channel("живи до конца");
+
+dxmpp.send_suggesstion("152152151@localhost","pleasse say hello");
+
+// dxmpp.register_channel("Falange","localhost");
 
 
 // dxmpp.on("find_groups", function(result) {
@@ -69,7 +72,8 @@ dxmpp.register_channel("живи до конца");
 let config={
     jidhost				: 'localhost',
     privKey				: priv,
-    host				: '142.93.226.135',
+    // host				: '142.93.226.135',
+    host				: '192.168.1.60',
     port				: 5222,
     // firstname		    : "Nikita",
     // lastname		    : "Metelkin"
