@@ -66,7 +66,7 @@ String.prototype.hexDecode = function(){
     return back;
 }
 
-function Dxmpp() {
+let Dxmpp = (function() {
 
     let self = this;
     let config;
@@ -87,9 +87,11 @@ function Dxmpp() {
 
     let events = new EventEmitter();
     this.on = function () {
+        console.log(arguments);
         events.on.apply(events, Array.prototype.slice.call(arguments));
     };
     this.removeListener = function () {
+        console.log(arguments);
         events.removeListener.apply(events, Array.prototype.slice.call(arguments));
     };
 
@@ -525,6 +527,8 @@ function Dxmpp() {
         });
 
     };
-}
 
-module.exports = new Dxmpp();
+    return this;
+});
+
+module.exports = Dxmpp;

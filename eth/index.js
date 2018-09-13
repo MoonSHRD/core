@@ -20,6 +20,10 @@ function Ether() {
         return this.generate_account().privateKey;
     };
 
+    this.generate_address = function(privKey) {
+        let account = new ethers.Wallet(privKey);
+        return account.address.toLowerCase();
+    }
 }
 
 module.exports = new Ether();
