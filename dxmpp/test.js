@@ -1,6 +1,6 @@
 
 // let dxmpp = require("./index")();
-let Dxmpp = require("./index1");
+let Dxmpp = require("./index");
 
 let addr="0x0feab3b11b087c9e6f1b861e265b78c693aa100b";
 let priv="0xe8662f419b434b3e17854f26eb37878fdcfd34adfa0c6c7990fa8e546efd1951";
