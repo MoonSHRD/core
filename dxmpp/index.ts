@@ -27,6 +27,7 @@ let NS_CHATSTATES = "http://jabber.org/protocol/chatstates";
 let NS_ROOMSTATES = "http://jabber.org/protocol/muc";
 let NS_DISCSTATES = "http://jabber.org/protocol/disco#items";
 let NS_vCARDSTATES = "vcard-temp";
+let NS_CHATEVSTATES = "http://jabber.org/protocol/muc#event";
 
 class Dxmpp {
     private static instance: Dxmpp;
@@ -134,9 +135,10 @@ class Dxmpp {
         });
     };
 
-    send(user, message, group) {
+    send(user, message, id, group) {
         this.$.ready(()=>{
             let stanza = new Stanza('message', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: (group ? 'groupchat' : 'chat')});
+            stanza.c('id').t(id);
             stanza.c('body').t(message);
             this.client.send(stanza);
         });
@@ -159,9 +161,9 @@ class Dxmpp {
         });
     };
 
-    register_channel(channel, contractaddress, password) {
+    register_channel(channel, password) {
         this.$.ready(()=>{
-            let stanza = new Stanza('presence', {from:this.client.options.jid,to: Dxmpp.hexEncode(channel.name)+"@"+channel.domain, contractaddress:contractaddress, channel:'1'}).
+            let stanza = new Stanza('presence', {from:this.client.options.jid,to: Dxmpp.hexEncode(channel.name) +"@"+channel.domain, channel:'1'}).
             c('x', {xmlns: NS_ROOMSTATES});
             this.client.send(stanza);
         });
@@ -372,8 +374,8 @@ class Dxmpp {
                                     let role = item_elem.attrs.role;
                                     let avatar = stanza.attrs.avatar;
                                     let channel = stanza.attrs.channel;
-                                    let contractaddress = stanza.attrs.contractaddress;
-                                    let room_data_full = {id:room_data.id, name: Dxmpp.hexDecode(room_data.name), domain: room_data.host, contractaddress:contractaddress, role: role, channel:channel, avatar:avatar};
+                                    // let contractaddress = stanza.attrs.contractaddress;
+                                    let room_data_full = {id:room_data.id, name: Dxmpp.hexDecode(room_data.name), domain: room_data.host, role: role, channel:channel, avatar:avatar};
                                     //joinedRooms[room_data.id] = room_data;
                                     this.events.emit('joined_room', room_data_full);
                                     return;
@@ -401,14 +403,19 @@ class Dxmpp {
                         this.events.emit('received_vcard',Dxmpp.parse_vcard(data,card));
                     }
 
-                    const query = stanza.getChild('query', 'http://jabber.org/protocol/disco#items');
+                    let query = stanza.getChild('query', NS_DISCSTATES);
                     if (query) {
                         let resda = [];
                         query.getChildren("item").forEach(function (element) {
-                            element.attrs.name=element.attrs.name.hexDecode();
+                            element.attrs.name=Dxmpp.hexDecode(element.attrs.name);
                             resda.push(element.attrs);
                         });
                         this.events.emit("find_groups", resda)
+                    }
+                    query = stanza.getChild('confirmation', NS_DISCSTATES);
+                    if (query) {
+                        let resda = query.getChildren("item");
+                        this.events.emit("confirmation", resda[0].attrs)
                     }
                 }
                 else {

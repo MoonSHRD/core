@@ -35,7 +35,7 @@ dxmpp.on('subscribe', function(from) {
 });
 
 dxmpp.on('chat', function(from, message) {
-    console.log(`received msg: "${message}", from: "${from}"`);
+    console.log(`received msg: "${message}", from: "${from.id}@${from.domain}"`);
 });
 
 dxmpp.on('groupchat', function(room_data, message, sender, stamp) {
@@ -62,15 +62,18 @@ dxmpp.on('post_suggested', function (data) {
 
 // dxmpp.send_suggesstion("152152151@localhost","pleasse say hello");
 
-dxmpp.register_channel("Брат за брата","localhost");
 
 
-// dxmpp.on("find_groups", function(result) {
-//     console.log('Here it is your damn groups!');
-//     result.forEach(function (group) {
-//         console.log(group);
-//     });
-// });
+dxmpp.on("find_groups", function(result) {
+    console.log('Found group(s):');
+    result.forEach(function (group) {
+        console.log(group);
+    });
+});
+
+dxmpp.on("confirmation", function(result) {
+    console.log(`Successfully send message: id:${result.userid}, server id: ${result.DBid}`);
+});
 
 // dxmpp.register_channel("!@#$%^&*()_+| $%^","localhost");
 // dxmpp.find_group('hello');
@@ -93,8 +96,13 @@ let config={
 };
 
 dxmpp.connect(config);
+dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich');
 dxmpp.get_contacts();
+// dxmpp.register_channel({name: "testgroup3", domain:"localhost"});
+// dxmpp.find_group("testgroup");
+// dxmpp.join("testgroup4");
+dxmpp.acceptSubscription("0x6c1567aee7f9d239bf1f7988bc009c00891c1571b@localhost");
 
 
-// dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich');
+
 // dxmpp.get_vcard(`0x8038f94dcc71b45b177a2e4578d26383573138be@localhost`);

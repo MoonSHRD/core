@@ -24,6 +24,7 @@ var NS_CHATSTATES = "http://jabber.org/protocol/chatstates";
 var NS_ROOMSTATES = "http://jabber.org/protocol/muc";
 var NS_DISCSTATES = "http://jabber.org/protocol/disco#items";
 var NS_vCARDSTATES = "vcard-temp";
+var NS_CHATEVSTATES = "http://jabber.org/protocol/muc#event";
 var Dxmpp = /** @class */ (function () {
     function Dxmpp() {
         // this.config=config;
@@ -115,10 +116,11 @@ var Dxmpp = /** @class */ (function () {
         });
     };
     ;
-    Dxmpp.prototype.send = function (user, message, group) {
+    Dxmpp.prototype.send = function (user, message, id, group) {
         var _this = this;
         this.$.ready(function () {
             var stanza = new Stanza('message', { from: _this.client.options.jid, to: user.id + "@" + user.domain, type: (group ? 'groupchat' : 'chat') });
+            stanza.c('id').t(id);
             stanza.c('body').t(message);
             _this.client.send(stanza);
         });
@@ -143,10 +145,10 @@ var Dxmpp = /** @class */ (function () {
         });
     };
     ;
-    Dxmpp.prototype.register_channel = function (channel, contractaddress, password) {
+    Dxmpp.prototype.register_channel = function (channel, password) {
         var _this = this;
         this.$.ready(function () {
-            var stanza = new Stanza('presence', { from: _this.client.options.jid, to: Dxmpp.hexEncode(channel.name) + "@" + channel.domain, contractaddress: contractaddress, channel: '1' }).
+            var stanza = new Stanza('presence', { from: _this.client.options.jid, to: Dxmpp.hexEncode(channel.name) + "@" + channel.domain, channel: '1' }).
                 c('x', { xmlns: NS_ROOMSTATES });
             _this.client.send(stanza);
         });
@@ -358,8 +360,8 @@ var Dxmpp = /** @class */ (function () {
                                     var role = item_elem.attrs.role;
                                     var avatar = stanza.attrs.avatar;
                                     var channel = stanza.attrs.channel;
-                                    var contractaddress = stanza.attrs.contractaddress;
-                                    var room_data_full = { id: room_data.id, name: Dxmpp.hexDecode(room_data.name), domain: room_data.host, contractaddress: contractaddress, role: role, channel: channel, avatar: avatar };
+                                    // let contractaddress = stanza.attrs.contractaddress;
+                                    var room_data_full = { id: room_data.id, name: Dxmpp.hexDecode(room_data.name), domain: room_data.host, role: role, channel: channel, avatar: avatar };
                                     //joinedRooms[room_data.id] = room_data;
                                     _this.events.emit('joined_room', room_data_full);
                                     return;
@@ -389,14 +391,19 @@ var Dxmpp = /** @class */ (function () {
                         var data = {};
                         _this.events.emit('received_vcard', Dxmpp.parse_vcard(data, card));
                     }
-                    var query = stanza.getChild('query', 'http://jabber.org/protocol/disco#items');
+                    var query = stanza.getChild('query', NS_DISCSTATES);
                     if (query) {
                         var resda_1 = [];
                         query.getChildren("item").forEach(function (element) {
-                            element.attrs.name = element.attrs.name.hexDecode();
+                            element.attrs.name = Dxmpp.hexDecode(element.attrs.name);
                             resda_1.push(element.attrs);
                         });
                         _this.events.emit("find_groups", resda_1);
+                    }
+                    query = stanza.getChild('confirmation', NS_DISCSTATES);
+                    if (query) {
+                        var resda = query.getChildren("item");
+                        _this.events.emit("confirmation", resda[0].attrs);
                     }
                 }
                 else {
