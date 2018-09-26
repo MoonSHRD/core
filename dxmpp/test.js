@@ -17,25 +17,30 @@ dxmpp.on('online',function (data) {
     // dxmpp.join('conference@localhost/hello_world',123);
 });
 
-dxmpp.on('buddy', function(jid, state, statusText) {
-    console.log(`${jid} is ${state}` + ( statusText ? state : "" ));
+dxmpp.on('buddy', function(user, state, statusText) {
+    console.log(`${user.id}@${user.domain} is ${state}` + ( statusText ? state : "" ));
 });
 
 dxmpp.on('joined_room', function(room_data) {
     // console.log(room_data);
     console.log(`joined ${room_data.name} as ${room_data.role}`);//+ room_data.channel==='1'?' room is a channel':'');
-    dxmpp.send(room_data.id+"@"+room_data.domain,"hello",true);
-    dxmpp.send_suggesstion(room_data.id+"@"+room_data.domain,"pleasse say hello");
+    // dxmpp.send(room_data.id+"@"+room_data.domain,"hello",true);
+    // dxmpp.send_suggesstion(room_data.id+"@"+room_data.domain,"pleasse say hello");
 });
 
 dxmpp.on('subscribe', function(from) {
-    console.log(from);
+    console.log(`User ${from.id}@${from.domain} wants to subscribe to you`);
     dxmpp.acceptSubscription(from);
-    dxmpp.send(from,"fuck you");
+    // let adresses = [from.id, dxmpp.get_address()].sort();
+    // dxmpp.register_channel({id:`${adresses[0]}_${adresses[1]}`, domain:"localhost", type:"user_chat"})
+});
+
+dxmpp.on('subscribed', function(from, key) {
+    console.log(`Successfully subscribe to user ${from.id}@${from.domain}. His pubkey: ${key}`);
 });
 
 dxmpp.on('chat', function(from, message) {
-    console.log(`received msg: "${message}", from: "${from}"`);
+    console.log(`received msg: "${message}", from: "${from.id}@${from.domain}"`);
 });
 
 dxmpp.on('groupchat', function(room_data, message, sender, stamp) {
@@ -49,7 +54,7 @@ dxmpp.on('error', function (err) {
 });
 
 dxmpp.on('received_vcard', function (data) {
-    if (data.address===dxmpp.get_address()){
+    if (data.id===dxmpp.get_address()){
         console.log(`It's me!!!!`);
     }
     // console.log(data);
@@ -62,15 +67,18 @@ dxmpp.on('post_suggested', function (data) {
 
 // dxmpp.send_suggesstion("152152151@localhost","pleasse say hello");
 
-dxmpp.register_channel("Брат за брата","localhost");
 
 
-// dxmpp.on("find_groups", function(result) {
-//     console.log('Here it is your damn groups!');
-//     result.forEach(function (group) {
-//         console.log(group);
-//     });
-// });
+dxmpp.on("find_groups", function(result) {
+    console.log('Found group(s):');
+    result.forEach(function (group) {
+        console.log(group);
+    });
+});
+
+dxmpp.on("confirmation", function(result) {
+    console.log(`Successfully send message: id:${result.userid}, server id: ${result.DBid}`);
+});
 
 // dxmpp.register_channel("!@#$%^&*()_+| $%^","localhost");
 // dxmpp.find_group('hello');
@@ -93,8 +101,16 @@ let config={
 };
 
 dxmpp.connect(config);
+dxmpp.set_vcard('Gagula','Gagulievich','Chel2');
+// dxmpp.get_vcard({id:"0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain: "localhost"});
 dxmpp.get_contacts();
+dxmpp.register_channel({name: "ochko22", domain:"localhost", type:"channel"});
+// dxmpp.find_group("12345");
+// dxmpp.send({id:"0x6BfE5D20dd3D42fbc2078e9eb1c6d837331EeE05", domain: "localhost" ,}, "Hello", 1, 1);
+
+// dxmpp.join({id: "testgroup3", domain: "localhost"});
+// dxmpp.subscribe({id: "0x6C1567aeE7f9D239Bf1f7988Bc009C00891C1571", domain:"localhost"}, "key1");
+// dxmpp.acceptSubscription({id: "0x6C1567aeE7f9D239Bf1f7988Bc009C00891C1571", domain:"localhost"});
+// dxmpp.send({id: "0x6C1567aeE7f9D239Bf1f7988Bc009C00891C1571", domain: "localhost"}, "Hello!", 1, 0, dxmpp.get);
 
 
-// dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich');
-// dxmpp.get_vcard(`0x8038f94dcc71b45b177a2e4578d26383573138be@localhost`);
