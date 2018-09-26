@@ -3,6 +3,9 @@ let Stanza = xmpp.Stanza;
 let EventEmitter = require('events').EventEmitter;
 //let util = require('util');
 let qbox = require('qbox');
+let crypto = require('crypto');
+let dif = require('js-x25519');
+let helpers = require('../crypt/helpers.js');
 
 let STATUS = {
     AWAY: "away",
@@ -104,6 +107,28 @@ class Dxmpp {
         return back;
     }
 
+    private static generateSecret (mypriv, buddypub) {
+        return helpers.toHexString(dif.getSharedKey(mypriv, buddypub));
+    }
+
+    encryptMsg(msg, secret) {
+        // let first = crypto.createECDH('secp256k1');
+        // first.generateKeys();
+        // let priv1=first.getPrivateKey();
+        // let pub1 = dif.getPublic(priv1);
+        // first.generateKeys();
+        // let priv2=first.getPrivateKey();
+        // let pub2 = dif.getPublic(priv2);
+        // secret = Dxmpp.generateSecret(priv1, pub2);
+        return helpers.encryptText(secret, msg);
+        // console.log("Encrypted: ", enc);
+        // let denc = helpers.decryptText(secret, enc);
+        // console.log("Decrypted: ", denc);
+
+    }
+    private static decryptMsg(msg, secret) {
+        return helpers.decryptText(secret, msg);
+    }
 
     // let events = new EventEmitter();
     on(event,callback) {
@@ -121,21 +146,26 @@ class Dxmpp {
         });
     };
 
-    acceptSubscription(user) {
+    acceptSubscription(user, pub_key) {
+        let test = "I am a test pubKey!";
         this.$.ready(()=>{
             let stanza = new Stanza('presence', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: 'subscribed'});
+            stanza.c("pubKey").t(test);
             this.client.send(stanza);
         });
     };
 
-    subscribe(user) {
+    subscribe(user, pub_key) {
+        let test = "I am a test pubKey!";
         this.$.ready(()=>{
             let stanza = new Stanza('presence', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: 'subscribe'});
+            stanza.c("pubKey").t(test);
             this.client.send(stanza);
         });
     };
 
-    send(user, message, id, group) {
+    send(user, message, id, group, secret) {
+        message = Dxmpp.encryptMsg(message, secret);
         this.$.ready(()=>{
             let stanza = new Stanza('message', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: (group ? 'groupchat' : 'chat')});
             stanza.c('id').t(id);

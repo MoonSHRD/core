@@ -3,6 +3,9 @@ var Stanza = xmpp.Stanza;
 var EventEmitter = require('events').EventEmitter;
 //let util = require('util');
 var qbox = require('qbox');
+var crypto = require('crypto');
+var dif = require('js-x25519');
+var helpers = require('../crypt/helpers.js');
 var STATUS = {
     AWAY: "away",
     DND: "dnd",
@@ -82,6 +85,26 @@ var Dxmpp = /** @class */ (function () {
         }
         return back;
     };
+    Dxmpp.generateSecret = function (mypriv, buddypub) {
+        return helpers.toHexString(dif.getSharedKey(mypriv, buddypub));
+    };
+    Dxmpp.prototype.encryptMsg = function (msg, secret) {
+        // let first = crypto.createECDH('secp256k1');
+        // first.generateKeys();
+        // let priv1=first.getPrivateKey();
+        // let pub1 = dif.getPublic(priv1);
+        // first.generateKeys();
+        // let priv2=first.getPrivateKey();
+        // let pub2 = dif.getPublic(priv2);
+        // secret = Dxmpp.generateSecret(priv1, pub2);
+        return helpers.encryptText(secret, msg);
+        // console.log("Encrypted: ", enc);
+        // let denc = helpers.decryptText(secret, enc);
+        // console.log("Decrypted: ", denc);
+    };
+    Dxmpp.decryptMsg = function (msg, secret) {
+        return helpers.decryptText(secret, msg);
+    };
     // let events = new EventEmitter();
     Dxmpp.prototype.on = function (event, callback) {
         this.events.on(event, callback);
@@ -100,24 +123,29 @@ var Dxmpp = /** @class */ (function () {
         });
     };
     ;
-    Dxmpp.prototype.acceptSubscription = function (user) {
+    Dxmpp.prototype.acceptSubscription = function (user, pub_key) {
         var _this = this;
+        var test = "I am a test pubKey!";
         this.$.ready(function () {
             var stanza = new Stanza('presence', { from: _this.client.options.jid, to: user.id + "@" + user.domain, type: 'subscribed' });
+            stanza.c("pubKey").t(test);
             _this.client.send(stanza);
         });
     };
     ;
-    Dxmpp.prototype.subscribe = function (user) {
+    Dxmpp.prototype.subscribe = function (user, pub_key) {
         var _this = this;
+        var test = "I am a test pubKey!";
         this.$.ready(function () {
             var stanza = new Stanza('presence', { from: _this.client.options.jid, to: user.id + "@" + user.domain, type: 'subscribe' });
+            stanza.c("pubKey").t(test);
             _this.client.send(stanza);
         });
     };
     ;
-    Dxmpp.prototype.send = function (user, message, id, group) {
+    Dxmpp.prototype.send = function (user, message, id, group, secret) {
         var _this = this;
+        message = Dxmpp.encryptMsg(message, secret);
         this.$.ready(function () {
             var stanza = new Stanza('message', { from: _this.client.options.jid, to: user.id + "@" + user.domain, type: (group ? 'groupchat' : 'chat') });
             stanza.c('id').t(id);

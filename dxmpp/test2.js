@@ -6,8 +6,8 @@ dxmpp.on('online',function () {
     console.log("mazafaka")
 });
 
-dxmpp.on('buddy', function(jid, state, statusText) {
-    console.log(`${jid} is ${state}` + ( statusText ? state : "" ));
+dxmpp.on('buddy', function(user, state, statusText) {
+    console.log(`${user.id}@${user.domain} is ${state}` + ( statusText ? state : "" ));
 });
 
 dxmpp.on('subscribe', function(from) {
@@ -15,8 +15,8 @@ dxmpp.on('subscribe', function(from) {
     dxmpp.acceptSubscription(from);
 });
 
-dxmpp.on('joined_room', function(role, room_data) {
-    console.log(`joined ${room_data.name} as ${role}`);
+dxmpp.on('joined_room', function(room_data) {
+    console.log(`joined ${room_data.name} as ${room_data.role}`);
     // dxmpp.send(room_data.id+"@localhost", "fucka", true);
 });
 
@@ -39,6 +39,19 @@ dxmpp.on("confirmation", function(result) {
     console.log(`Successfully send message: id:${result.userid}, server id: ${result.DBid}`);
  });
 
+dxmpp.on("find_groups", function(result) {
+    console.log('Found group(s):');
+    result.forEach(function (group) {
+        console.log(group);
+    });
+});
+
+dxmpp.on('subscribe', function(from) {
+    console.log(`User ${from.id}@${from.domain} wants to subscribe to you`);
+    dxmpp.acceptSubscription(from);
+    // dxmpp.send(from,"fuck you");
+});
+
 // let addr="0x6C1567aeE7f9D239Bf1f7988Bc009C00891C1571";
 // let addr="0x6c1567aee7f9d239bf1f7988bc009c00891c1571";
 let priv="0x8a9f20e0fce80f895c236a3d987880fc51a5f7870f68ed20c823276faa45c167";
@@ -54,10 +67,14 @@ let config={
 };
 
 dxmpp.connect(config);
+// dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich', "asdasdsad");
+// dxmpp.get_vcard({id:"0x6c1567aee7f9d239bf1f7988bc009c00891c1571", domain: "localhost"});
 dxmpp.get_contacts();
-// dxmpp.subscribe("0x0feab3b11b087c9e6f1b861e265b78c693aa100b@localhost");
+// dxmpp.register_channel({name: "testgroup3", domain:"localhost"});
+// dxmpp.find_group("testgroup");
+dxmpp.subscribe({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain:"localhost"});
 // dxmpp.send("0x0feab3b11b087c9e6f1b861e265b78c693aa100b@localhost","fuck you");
-// dxmpp.acceptSubscription("0x0feab3b11b087c9e6f1b861e265b78c693aa100b@localhost");
-// dxmpp.join("38@localhost");
-dxmpp.send({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain: "localhost"}, "Hello!", 1);
-// dxmpp.get_vcard("0x6c1567aee7f9d239bf1f7988bc009c00891c1571@localhost");
+// dxmpp.acceptSubscription({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain:"localhost"});
+
+// dxmpp.join({id: "testgroup3", domain: "localhost"});
+// dxmpp.send({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain: "localhost"}, "Hello!", 1);

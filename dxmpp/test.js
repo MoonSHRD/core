@@ -17,8 +17,8 @@ dxmpp.on('online',function (data) {
     // dxmpp.join('conference@localhost/hello_world',123);
 });
 
-dxmpp.on('buddy', function(jid, state, statusText) {
-    console.log(`${jid} is ${state}` + ( statusText ? state : "" ));
+dxmpp.on('buddy', function(user, state, statusText) {
+    console.log(`${user.id}@${user.domain} is ${state}` + ( statusText ? state : "" ));
 });
 
 dxmpp.on('joined_room', function(room_data) {
@@ -29,9 +29,9 @@ dxmpp.on('joined_room', function(room_data) {
 });
 
 dxmpp.on('subscribe', function(from) {
-    console.log(from);
+    console.log(`User ${from.id}@${from.domain} wants to subscribe to you`);
     dxmpp.acceptSubscription(from);
-    dxmpp.send(from,"fuck you");
+    // dxmpp.send(from,"fuck you");
 });
 
 dxmpp.on('chat', function(from, message) {
@@ -49,7 +49,7 @@ dxmpp.on('error', function (err) {
 });
 
 dxmpp.on('received_vcard', function (data) {
-    if (data.address===dxmpp.get_address()){
+    if (data.id===dxmpp.get_address()){
         console.log(`It's me!!!!`);
     }
     // console.log(data);
@@ -98,11 +98,11 @@ let config={
 dxmpp.connect(config);
 dxmpp.set_vcard('Nikita','Metelkin','Gagulya Gagulievich');
 dxmpp.get_contacts();
-// dxmpp.register_channel({name: "testgroup3", domain:"localhost"});
-// dxmpp.find_group("testgroup");
-// dxmpp.join("testgroup4");
-dxmpp.acceptSubscription("0x6c1567aee7f9d239bf1f7988bc009c00891c1571b@localhost");
+// dxmpp.register_channel({name: "12345", domain:"localhost"});
+// dxmpp.find_group("12345");
+// dxmpp.join({id: "testgroup3", domain: "localhost"});
+// dxmpp.subscribe({id: "0x6C1567aeE7f9D239Bf1f7988Bc009C00891C1571", domain:"localhost"});
+// dxmpp.acceptSubscription({id: "0x6C1567aeE7f9D239Bf1f7988Bc009C00891C1571", domain:"localhost"});
+// dxmpp.get_vcard({id:"0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain: "localhost"});
+// dxmpp.encryptMsg("Test");
 
-
-
-// dxmpp.get_vcard(`0x8038f94dcc71b45b177a2e4578d26383573138be@localhost`);
