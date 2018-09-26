@@ -346,6 +346,10 @@ var Dxmpp = /** @class */ (function () {
                         //handling incoming unsubscription requests
                         _this.events.emit('unsubscribe', user);
                     }
+                    else if (stanza.attrs.type == 'subscribed') {
+                        //handling incoming unsubscription requests
+                        _this.events.emit('subscribed', user);
+                    }
                     else {
                         //looking for presence stenza for availability changes
                         var statusText = stanza.getChildText('status');
@@ -393,7 +397,7 @@ var Dxmpp = /** @class */ (function () {
                     if (query) {
                         var resda_1 = [];
                         query.getChildren("item").forEach(function (element) {
-                            element.attrs.name = element.attrs.name.hexDecode();
+                            element.attrs.name = Dxmpp.hexDecode(element.attrs.name);
                             resda_1.push(element.attrs);
                         });
                         _this.events.emit("find_groups", resda_1);

@@ -360,6 +360,9 @@ class Dxmpp {
                     } else if (stanza.attrs.type == 'unsubscribe') {
                         //handling incoming unsubscription requests
                         this.events.emit('unsubscribe', user);
+                    } else if (stanza.attrs.type == 'subscribed') {
+                        //handling incoming unsubscription requests
+                        this.events.emit('subscribed', user);
                     } else {
                         //looking for presence stenza for availability changes
                         let statusText = stanza.getChildText('status');
@@ -404,8 +407,8 @@ class Dxmpp {
                     const query = stanza.getChild('query', 'http://jabber.org/protocol/disco#items');
                     if (query) {
                         let resda = [];
-                        query.getChildren("item").forEach(function (element) {
-                            element.attrs.name=element.attrs.name.hexDecode();
+                        query.getChildren("item").forEach((element) => {
+                            element.attrs.name=Dxmpp.hexDecode(element.attrs.name);
                             resda.push(element.attrs);
                         });
                         this.events.emit("find_groups", resda)
