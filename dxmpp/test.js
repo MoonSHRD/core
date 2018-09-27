@@ -109,7 +109,7 @@ dxmpp.get_contacts();
 // dxmpp.register_channel({name: "Test1234566c", domain:"localhost", type:"channel"});
 // dxmpp.find_group("Test");
 // dxmpp.send({id:"0x0feab3b11b087c9e6f1b861e265b78c693aa100b_0x6c1567aee7f9d239bf1f7988bc009c00891c1571", domain: "localhost" ,}, "Test", 1, "chat");
-dxmpp.send({id:"0x5dcac9af2af132f7248d423fa2c287a6f01d7658", domain: "localhost" ,}, "Hello228", 1, 'channel');
+dxmpp.send({id:"0x5dcac9af2af132f7248d423fa2c287a6f01d7658", domain: "localhost" ,}, "Hello322", 1, 'channel');
 
 
 // dxmpp.join({id: "testgroup3", domain: "localhost"});

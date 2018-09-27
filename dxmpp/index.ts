@@ -417,8 +417,12 @@ class Dxmpp {
                                     let channel = stanza.attrs.channel;
                                     let room_data_full = {id:room_data.id, name: Dxmpp.hexDecode(room_data.name), domain: room_data.host, role: role, channel:channel, avatar:avatar};
                                     //joinedRooms[room_data.id] = room_data;
-                                    let messages = stanza.getChildren("item");
-                                    this.events.emit('joined_room', room_data_full, messages);
+                                    let messages = stanza.getChild("set");
+                                    let list_messages = [];
+                                    messages.getChildren("item").forEach(function (element) {
+                                        list_messages.push(element.attrs);
+                                    });
+                                    this.events.emit('joined_room', room_data_full, list_messages);
                                     return;
                                 } else {
                                     bla=stanza.attrs.user_joined.split("@");

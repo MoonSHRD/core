@@ -404,8 +404,12 @@ var Dxmpp = /** @class */ (function () {
                                     var channel = stanza.attrs.channel;
                                     var room_data_full = { id: room_data.id, name: Dxmpp.hexDecode(room_data.name), domain: room_data.host, role: role, channel: channel, avatar: avatar };
                                     //joinedRooms[room_data.id] = room_data;
-                                    var messages = stanza.getChildren("item");
-                                    _this.events.emit('joined_room', room_data_full, messages);
+                                    var messages = stanza.getChild("set");
+                                    var list_messages_1 = [];
+                                    messages.getChildren("item").forEach(function (element) {
+                                        list_messages_1.push(element.attrs);
+                                    });
+                                    _this.events.emit('joined_room', room_data_full, list_messages_1);
                                     return;
                                 }
                                 else {
