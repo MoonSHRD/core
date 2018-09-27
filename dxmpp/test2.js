@@ -69,12 +69,12 @@ let config={
 };
 
 dxmpp.connect(config);
-dxmpp.set_vcard('Nikita','Metelkin','Chel1');
+// dxmpp.set_vcard('Nikita','Metelkin','Chel1');
 // dxmpp.get_vcard({id:"0x6c1567aee7f9d239bf1f7988bc009c00891c1571", domain: "localhost"});
 dxmpp.get_contacts();
-// dxmpp.register_channel({name: "testgroup3", domain:"localhost"});
+// dxmpp.register_channel({name: "testgroup42342", domain:"localhost"});
 // dxmpp.find_group("testgroup");
-// dxmpp.join({id: "0x6ec3C8120B3D3daC95A702f02A5493809E247495", domain: "localhost"});
-dxmpp.subscribe({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain:"localhost"});
+// dxmpp.join({id: "0x5dcac9af2af132f7248d423fa2c287a6f01d7658", domain: "localhost"});
+// dxmpp.subscribe({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain:"localhost"});
 // dxmpp.acceptSubscription({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain:"localhost"});
 // dxmpp.send({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain: "localhost"}, "Hello!", 1);

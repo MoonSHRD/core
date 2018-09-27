@@ -3,7 +3,7 @@ var Stanza = xmpp.Stanza;
 var EventEmitter = require('events').EventEmitter;
 //let util = require('util');
 var qbox = require('qbox');
-var crypto = require('crypto');
+require('crypto');
 var dif = require('js-x25519');
 var helpers = require('../crypt/helpers.js');
 var STATUS = {
@@ -346,7 +346,7 @@ var Dxmpp = /** @class */ (function () {
                         _this.events.emit('chatstate', stanza.attrs.from, chatstate.name);
                     }
                 }
-                else if (stanza.attrs.type == 'groupchat') {
+                else if (stanza.attrs.type == 'channel') {
                     var body = stanza.getChild('body');
                     if (body) {
                         var message = body.getText();
