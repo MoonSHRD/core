@@ -151,6 +151,9 @@ class Dxmpp {
             let stanza = new Stanza('presence', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: 'subscribed'});
             stanza.c("pubKey").t(pub_key);
             this.client.send(stanza);
+            // let users = [this.client.options.jid, user.id].sort();
+            // let users_str = `${users[0]}_${users[1]}`;
+            // this.client.register_channel({name: users_str, domain: "localhost", channel: "user_chat"})
         });
     };
 
@@ -162,11 +165,11 @@ class Dxmpp {
         });
     };
 
-    send(user, message, id, group, secret) {
-        if (group !== 1) {message = Dxmpp.encryptMsg(message, secret);}
+    send(user, message, id, type, secret) {
+        // if (group !== 1) {message = Dxmpp.encryptMsg(message, secret);}
         // else {user.id = Dxmpp.hexEncode(user.id);}
         this.$.ready(()=>{
-            let stanza = new Stanza('message', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: (group ? 'groupchat' : 'chat')});
+            let stanza = new Stanza('message', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: type});
             stanza.c('id').t(id);
             stanza.c('body').t(message);
             this.client.send(stanza);
@@ -192,7 +195,8 @@ class Dxmpp {
 
     register_channel(chat, password) {
         this.$.ready(()=>{
-            let stanza = new Stanza('presence', {from:this.client.options.jid,to: Dxmpp.hexEncode(chat.name) +"@"+chat.domain, channel:chat.type}).
+            if (chat.type != "user_chat") { chat.name = Dxmpp.hexEncode(chat.name) }
+            let stanza = new Stanza('presence', {from:this.client.options.jid,to:chat.name +"@"+chat.domain, channel:chat.type}).
             c('x', {xmlns: NS_ROOMSTATES});
             this.client.send(stanza);
         });
@@ -396,6 +400,9 @@ class Dxmpp {
                         //handling incoming unsubscription requests
                         let key = stanza.getChildText("pubKey");
                         this.events.emit('subscribed', user, key);
+                        let users = [this.client.options.jid, user.id].sort();
+                        let users_str = `${users[0]}_${users[1].nam}`;
+                        this.register_channel({name: users_str, domain: "localhost", type: "user_chat"}, "")
                     } else {
                         //looking for presence stenza for availability changes
                         let statusText = stanza.getChildText('status');
@@ -408,10 +415,10 @@ class Dxmpp {
                                     let role = item_elem.attrs.role;
                                     let avatar = stanza.attrs.avatar;
                                     let channel = stanza.attrs.channel;
-                                    // let contractaddress = stanza.attrs.contractaddress;
                                     let room_data_full = {id:room_data.id, name: Dxmpp.hexDecode(room_data.name), domain: room_data.host, role: role, channel:channel, avatar:avatar};
                                     //joinedRooms[room_data.id] = room_data;
-                                    this.events.emit('joined_room', room_data_full);
+                                    let messages = stanza.getChildren("item");
+                                    this.events.emit('joined_room', room_data_full, messages);
                                     return;
                                 } else {
                                     bla=stanza.attrs.user_joined.split("@");

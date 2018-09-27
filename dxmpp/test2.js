@@ -3,15 +3,19 @@ let Dxmpp = require("./index");
 let dxmpp = Dxmpp.getInstance();
 
 dxmpp.on('online',function () {
-    console.log("mazafaka")
+    console.log("Ready for some shit")
 });
 
 dxmpp.on('buddy', function(user, state, statusText) {
     console.log(`${user.id}@${user.domain} is ${state}` + ( statusText ? state : "" ));
 });
 
-dxmpp.on('joined_room', function(room_data) {
+dxmpp.on('joined_room', function(room_data, messages) {
     console.log(`joined ${room_data.name} as ${room_data.role}`);
+    console.log(`old messages:`);
+    messages.forEach(function (message) {
+        console.log(`${message.time}:${message.message}`)
+    });
     // dxmpp.send(room_data.id+"@localhost", "fucka", true);
 });
 
@@ -21,13 +25,14 @@ dxmpp.on('user_joined_room', function(user, room_data) {
 });
 
 dxmpp.on('groupchat', function(room_data, message, sender, stamp) {
-    console.log(`${sender} says ${message} in ${room_data.name} chat on ${stamp}`);
+    // console.log(`${sender} says ${message} in ${room_data.name} chat on ${stamp}`);
+    console.log(`New message from group: ${room_data.id}@${room_data.host} - ${message}`);
     // if(from !== options.nick)
     // dxmpp.send(conference, from +': echo: ' + message, true);
 });
 
 dxmpp.on('chat', function(from, message) {
-    console.log(`received msg: "${message}", from: "${from}"`);
+    console.log(`received msg: "${message}", from: "${from.id}@${from.domain}"`);
 });
 
 dxmpp.on("confirmation", function(result) {
@@ -69,7 +74,7 @@ dxmpp.set_vcard('Nikita','Metelkin','Chel1');
 dxmpp.get_contacts();
 // dxmpp.register_channel({name: "testgroup3", domain:"localhost"});
 // dxmpp.find_group("testgroup");
-// dxmpp.join({id: "testgroup3", domain: "localhost"});
+// dxmpp.join({id: "0x6ec3C8120B3D3daC95A702f02A5493809E247495", domain: "localhost"});
 dxmpp.subscribe({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain:"localhost"});
 // dxmpp.acceptSubscription({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain:"localhost"});
 // dxmpp.send({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain: "localhost"}, "Hello!", 1);
