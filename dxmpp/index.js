@@ -318,6 +318,7 @@ var Dxmpp = /** @class */ (function () {
         this.client.on('online', function (data) {
             _this.client.send(new Stanza('presence'));
             _this.events.emit('online', data);
+            _this.$.reset();
             _this.$.start();
             // keepalive
             if (_this.client.connection.socket) {
@@ -353,13 +354,13 @@ var Dxmpp = /** @class */ (function () {
                         var message = body.getText();
                         var sender = null;
                         var date = null;
-                        if (stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
+                        if (stanza.getChild('x'))
                             date = stanza.getChild('x').attrs.date;
-                        if (stanza.attrs.sender) {
-                            sender = stanza.attrs.sender;
-                            if (sender.split('/')) {
-                                sender = sender.split('/')[0];
-                            }
+                        if (stanza.attrs.from) {
+                            sender = stanza.attrs.from;
+                            // if (sender.split('/')) {
+                            //     sender = sender.split('/')[0]
+                            // }
                             sender = sender.split('@');
                             sender = { address: sender[0], domain: sender[1] };
                         }
@@ -388,7 +389,7 @@ var Dxmpp = /** @class */ (function () {
                         var key = stanza.getChildText("pubKey");
                         _this.events.emit('subscribed', user, key);
                         var users = [_this.client.options.jid, user.id].sort();
-                        var users_str = users[0] + "_" + users[1].nam;
+                        var users_str = users[0].user + "_" + users[1];
                         _this.register_channel({ name: users_str, domain: "localhost", type: "user_chat" }, "");
                     }
                     else {

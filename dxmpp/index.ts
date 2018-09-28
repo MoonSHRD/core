@@ -328,6 +328,7 @@ class Dxmpp {
         this.client.on('online', (data)=>{
             this.client.send(new Stanza('presence'));
             this.events.emit('online', data);
+            this.$.reset();
             this.$.start();
 
             // keepalive
@@ -369,13 +370,13 @@ class Dxmpp {
                         let message = body.getText();
                         let sender = null;
                         let date = null;
-                        if (stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
+                        if (stanza.getChild('x'))
                             date = stanza.getChild('x').attrs.date;
-                        if (stanza.attrs.sender) {
-                            sender = stanza.attrs.sender;
-                            if (sender.split('/')) {
-                                sender = sender.split('/')[0]
-                            }
+                        if (stanza.attrs.from) {
+                            sender = stanza.attrs.from;
+                            // if (sender.split('/')) {
+                            //     sender = sender.split('/')[0]
+                            // }
                             sender=sender.split('@');
                             sender={address:sender[0],domain:sender[1]}
                         }
@@ -402,7 +403,7 @@ class Dxmpp {
                         let key = stanza.getChildText("pubKey");
                         this.events.emit('subscribed', user, key);
                         let users = [this.client.options.jid, user.id].sort();
-                        let users_str = `${users[0]}_${users[1].nam}`;
+                        let users_str = `${users[0].user}_${users[1]}`;
                         this.register_channel({name: users_str, domain: "localhost", type: "user_chat"}, "")
                     } else {
                         //looking for presence stenza for availability changes
