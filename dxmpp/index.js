@@ -351,12 +351,10 @@ var Dxmpp = /** @class */ (function () {
                     var body = stanza.getChild('body');
                     if (body) {
                         var message = body.getText();
-                        var stamp = null;
                         var sender = null;
                         var date = null;
                         if (stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
-                            stamp = stanza.getChild('x').attrs.stamp;
-                        date = stanza.getChild('x').attrs.date;
+                            date = stanza.getChild('x').attrs.date;
                         if (stanza.attrs.sender) {
                             sender = stanza.attrs.sender;
                             if (sender.split('/')) {
@@ -365,7 +363,7 @@ var Dxmpp = /** @class */ (function () {
                             sender = sender.split('@');
                             sender = { address: sender[0], domain: sender[1] };
                         }
-                        _this.events.emit('groupchat', Dxmpp.get_room_data(stanza), message, sender, stamp, date);
+                        _this.events.emit('groupchat', Dxmpp.get_room_data(stanza), message, sender, date);
                     }
                 }
             }
