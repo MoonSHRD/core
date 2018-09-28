@@ -339,7 +339,8 @@ var Dxmpp = /** @class */ (function () {
                         var id = from.split('/')[0];
                         var bla = id.split("@");
                         var user = { id: bla[0], domain: bla[1] };
-                        _this.events.emit('chat', user, message);
+                        var date = stanza.attrs.date;
+                        _this.events.emit('chat', user, message, date);
                     }
                     var chatstate = stanza.getChildByAttr('xmlns', NS_CHATSTATES);
                     if (chatstate) {
@@ -352,8 +353,10 @@ var Dxmpp = /** @class */ (function () {
                         var message = body.getText();
                         var stamp = null;
                         var sender = null;
+                        var date = null;
                         if (stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
                             stamp = stanza.getChild('x').attrs.stamp;
+                        date = stanza.getChild('x').attrs.date;
                         if (stanza.attrs.sender) {
                             sender = stanza.attrs.sender;
                             if (sender.split('/')) {
@@ -362,7 +365,7 @@ var Dxmpp = /** @class */ (function () {
                             sender = sender.split('@');
                             sender = { address: sender[0], domain: sender[1] };
                         }
-                        _this.events.emit('groupchat', Dxmpp.get_room_data(stanza), message, sender, stamp);
+                        _this.events.emit('groupchat', Dxmpp.get_room_data(stanza), message, sender, stamp, date);
                     }
                 }
             }
@@ -414,8 +417,9 @@ var Dxmpp = /** @class */ (function () {
                                 }
                                 else {
                                     bla = stanza.attrs.user_joined.split("@");
+                                    var date = stanza.attrs.date;
                                     user = { id: bla[0], domain: bla[1] };
-                                    _this.events.emit('user_joined_room', user, room_data);
+                                    _this.events.emit('user_joined_room', user, room_data, date);
                                     return;
                                 }
                             }
@@ -448,8 +452,8 @@ var Dxmpp = /** @class */ (function () {
                     }
                     query = stanza.getChild('confirmation', NS_DISCSTATES);
                     if (query) {
-                        var resda = query.getChildren("item");
-                        _this.events.emit("confirmation", resda[0].attrs);
+                        var resda = query.getChild("item");
+                        _this.events.emit("confirmation", resda.attrs);
                     }
                 }
                 else {

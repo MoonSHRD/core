@@ -353,7 +353,8 @@ class Dxmpp {
                         let id = from.split('/')[0];
                         let bla=id.split("@");
                         let user = {id:bla[0],domain:bla[1]};
-                        this.events.emit('chat', user, message);
+                        let date = stanza.attrs.date;
+                        this.events.emit('chat', user, message, date);
                     }
 
                     let chatstate = stanza.getChildByAttr('xmlns', NS_CHATSTATES);
@@ -368,8 +369,10 @@ class Dxmpp {
                         let message = body.getText();
                         let stamp = null;
                         let sender = null;
+                        let date = null;
                         if (stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
                             stamp = stanza.getChild('x').attrs.stamp;
+                            date = stanza.getChild('x');
                         if (stanza.attrs.sender) {
                             sender = stanza.attrs.sender;
                             if (sender.split('/')) {
@@ -378,7 +381,7 @@ class Dxmpp {
                             sender=sender.split('@');
                             sender={address:sender[0],domain:sender[1]}
                         }
-                        this.events.emit('groupchat', Dxmpp.get_room_data(stanza), message, sender, stamp);
+                        this.events.emit('groupchat', Dxmpp.get_room_data(stanza), message, sender, stamp, date);
                     }
                 }
             } else if (stanza.is('presence')) {
@@ -426,8 +429,9 @@ class Dxmpp {
                                     return;
                                 } else {
                                     bla=stanza.attrs.user_joined.split("@");
+                                    let date = stanza.attrs.date;
                                     user = {id:bla[0],domain:bla[1]};
-                                    this.events.emit('user_joined_room', user, room_data);
+                                    this.events.emit('user_joined_room', user, room_data, date);
                                     return;
                                 }
                             }
@@ -459,8 +463,8 @@ class Dxmpp {
                     }
                     query = stanza.getChild('confirmation', NS_DISCSTATES);
                     if (query) {
-                        let resda = query.getChildren("item");
-                        this.events.emit("confirmation", resda[0].attrs)
+                        let resda = query.getChild("item");
+                        this.events.emit("confirmation", resda.attrs)
                     }
                 }
                 else {

@@ -19,24 +19,24 @@ dxmpp.on('joined_room', function(room_data, messages) {
     // dxmpp.send(room_data.id+"@localhost", "fucka", true);
 });
 
-dxmpp.on('user_joined_room', function(user, room_data) {
-    console.log(`user ${user.username} joined ${room_data.name}`);
+dxmpp.on('user_joined_room', function(user, room_data, date) {
+    console.log(`user ${user.id}@${user.domain} joined ${room_data.id}@${room_data.host} at ${date}`);
     // dxmpp.send(room_data.id+"@localhost", "fucka", true);
 });
 
-dxmpp.on('groupchat', function(room_data, message, sender, stamp) {
+dxmpp.on('groupchat', function(room_data, message, sender, stamp, date) {
     // console.log(`${sender} says ${message} in ${room_data.name} chat on ${stamp}`);
-    console.log(`New message from group: ${room_data.id}@${room_data.host} - ${message}`);
+    console.log(`New message from group: ${room_data.id}@${room_data.host} - ${message}, date: ${date}`);
     // if(from !== options.nick)
     // dxmpp.send(conference, from +': echo: ' + message, true);
 });
 
-dxmpp.on('chat', function(from, message) {
-    console.log(`received msg: "${message}", from: "${from.id}@${from.domain}"`);
+dxmpp.on('chat', function(from, message, date) {
+    console.log(`received msg: "${message}", from: "${from.id}@${from.domain}" at ${date}`);
 });
 
 dxmpp.on("confirmation", function(result) {
-    console.log(`Successfully send message: id:${result.userid}, server id: ${result.DBid}`);
+    console.log(`Successfully send message: id:${result.userid}, server id: ${result.DBid}, time: ${result.date}`);
  });
 
 dxmpp.on("find_groups", function(result) {
