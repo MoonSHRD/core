@@ -3,6 +3,9 @@ let Stanza = xmpp.Stanza;
 let EventEmitter = require('events').EventEmitter;
 //let util = require('util');
 let qbox = require('qbox');
+require('crypto');
+let dif = require('js-x25519');
+let helpers = require('../crypt/helpers.js');
 
 let STATUS = {
     AWAY: "away",
@@ -27,6 +30,7 @@ let NS_CHATSTATES = "http://jabber.org/protocol/chatstates";
 let NS_ROOMSTATES = "http://jabber.org/protocol/muc";
 let NS_DISCSTATES = "http://jabber.org/protocol/disco#items";
 let NS_vCARDSTATES = "vcard-temp";
+let NS_CHATEVSTATES = "http://jabber.org/protocol/muc#event";
 
 class Dxmpp {
     private static instance: Dxmpp;
@@ -103,6 +107,28 @@ class Dxmpp {
         return back;
     }
 
+    private static generateSecret (mypriv, buddypub) {
+        return helpers.toHexString(dif.getSharedKey(mypriv, buddypub));
+    }
+
+    private static encryptMsg(msg, secret) {
+        // let first = crypto.createECDH('secp256k1');
+        // first.generateKeys();
+        // let priv1=first.getPrivateKey();
+        // let pub1 = dif.getPublic(priv1);
+        // first.generateKeys();
+        // let priv2=first.getPrivateKey();
+        // let pub2 = dif.getPublic(priv2);
+        // secret = Dxmpp.generateSecret(priv1, pub2);
+        return helpers.encryptText(secret, msg);
+        // console.log("Encrypted: ", enc);
+        // let denc = helpers.decryptText(secret, enc);
+        // console.log("Decrypted: ", denc);
+
+    }
+    private static decryptMsg(msg, secret) {
+        return helpers.decryptText(secret, msg);
+    }
 
     // let events = new EventEmitter();
     on(event,callback) {
@@ -120,23 +146,28 @@ class Dxmpp {
         });
     };
 
-    acceptSubscription(user) {
+    acceptSubscription(user, pub_key) {
         this.$.ready(()=>{
             let stanza = new Stanza('presence', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: 'subscribed'});
+            stanza.c("pubKey").t(pub_key);
             this.client.send(stanza);
         });
     };
 
-    subscribe(user) {
+    subscribe(user, pub_key) {
         this.$.ready(()=>{
             let stanza = new Stanza('presence', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: 'subscribe'});
+            stanza.c("pubKey").t(pub_key);
             this.client.send(stanza);
         });
     };
 
-    send(user, message, group) {
+    send(user, message, id, group, secret) {
+        // if (group !== 1) {message = Dxmpp.encryptMsg(message, secret);}
+        // else {user.id = Dxmpp.hexEncode(user.id);}
         this.$.ready(()=>{
-            let stanza = new Stanza('message', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: (group ? 'groupchat' : 'chat')});
+            let stanza = new Stanza('message', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: group ? "groupchat" : "chat"});
+            stanza.c('id').t(id);
             stanza.c('body').t(message);
             this.client.send(stanza);
         });
@@ -159,9 +190,9 @@ class Dxmpp {
         });
     };
 
-    register_channel(channel, contractaddress, password) {
+    register_channel(channel, password) {
         this.$.ready(()=>{
-            let stanza = new Stanza('presence', {from:this.client.options.jid,to: Dxmpp.hexEncode(channel.name)+"@"+channel.domain, contractaddress:contractaddress, channel:'1'}).
+            let stanza = new Stanza('presence', {from:this.client.options.jid,to: Dxmpp.hexEncode(channel.name)+"@"+channel.domain, channel:'1'}).
             c('x', {xmlns: NS_ROOMSTATES});
             this.client.send(stanza);
         });
@@ -319,7 +350,8 @@ class Dxmpp {
                         let id = from.split('/')[0];
                         let bla=id.split("@");
                         let user = {id:bla[0],domain:bla[1]};
-                        this.events.emit('chat', user, message);
+                        let date = stanza.attrs.date;
+                        this.events.emit('chat', user, message, date);
                     }
 
                     let chatstate = stanza.getChildByAttr('xmlns', NS_CHATSTATES);
@@ -332,19 +364,16 @@ class Dxmpp {
                     let body = stanza.getChild('body');
                     if (body) {
                         let message = body.getText();
-                        let stamp = null;
                         let sender = null;
-                        if (stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
-                            stamp = stanza.getChild('x').attrs.stamp;
-                        if (stanza.attrs.sender) {
-                            sender = stanza.attrs.sender;
-                            if (sender.split('/')) {
-                                sender = sender.split('/')[0]
-                            }
+                        let date = null;
+                        if (stanza.getChild('x'))
+                            date = stanza.getChild('x').attrs.date;
+                        if (stanza.attrs.from) {
+                            sender = stanza.attrs.from;
                             sender=sender.split('@');
                             sender={address:sender[0],domain:sender[1]}
                         }
-                        this.events.emit('groupchat', Dxmpp.get_room_data(stanza), message, sender, stamp);
+                        this.events.emit('groupchat', Dxmpp.get_room_data(stanza), message, sender, date);
                     }
                 }
             } else if (stanza.is('presence')) {
@@ -356,14 +385,16 @@ class Dxmpp {
                     let bla=id.split("@");
                     let user = {id:bla[0],domain:bla[1]};
                     if (stanza.attrs.type == 'subscribe') {
+                        let key = stanza.getChildText("pubKey");
                         //handling incoming subscription requests
-                        this.events.emit('subscribe', user);
+                        this.events.emit('subscribe', user, key);
                     } else if (stanza.attrs.type == 'unsubscribe') {
                         //handling incoming unsubscription requests
                         this.events.emit('unsubscribe', user);
                     } else if (stanza.attrs.type == 'subscribed') {
                         //handling incoming unsubscription requests
-                        this.events.emit('subscribed', user);
+                        let key = stanza.getChildText("pubKey");
+                        this.events.emit('subscribed', user, key);
                     } else {
                         //looking for presence stenza for availability changes
                         let statusText = stanza.getChildText('status');
@@ -376,15 +407,20 @@ class Dxmpp {
                                     let role = item_elem.attrs.role;
                                     let avatar = stanza.attrs.avatar;
                                     let channel = stanza.attrs.channel;
-                                    let contractaddress = stanza.attrs.contractaddress;
-                                    let room_data_full = {id:room_data.id, name: Dxmpp.hexDecode(room_data.name), domain: room_data.host, contractaddress:contractaddress, role: role, channel:channel, avatar:avatar};
+                                    let room_data_full = {id:room_data.id, name: Dxmpp.hexDecode(room_data.name), domain: room_data.host, role: role, channel:channel, avatar:avatar};
                                     //joinedRooms[room_data.id] = room_data;
-                                    this.events.emit('joined_room', room_data_full);
+                                    let messages = stanza.getChild("set");
+                                    let list_messages = [];
+                                    messages.getChildren("item").forEach(function (element) {
+                                        list_messages.push(element.attrs);
+                                    });
+                                    this.events.emit('joined_room', room_data_full, list_messages);
                                     return;
                                 } else {
                                     bla=stanza.attrs.user_joined.split("@");
+                                    let date = stanza.attrs.date;
                                     user = {id:bla[0],domain:bla[1]};
-                                    this.events.emit('user_joined_room', user, room_data);
+                                    this.events.emit('user_joined_room', user, room_data, date);
                                     return;
                                 }
                             }
@@ -406,15 +442,19 @@ class Dxmpp {
                         return;
                     }
 
-                    const query = stanza.getChild('query', 'http://jabber.org/protocol/disco#items');
-                    console.log(query);
+                    let query = stanza.getChild('query', NS_DISCSTATES);
                     if (query) {
                         let resda = [];
-                        query.getChildren("item").forEach((element) => {
+                        query.getChildren("item").forEach(function (element) {
                             element.attrs.name=Dxmpp.hexDecode(element.attrs.name);
                             resda.push(element.attrs);
                         });
                         this.events.emit("find_groups", resda)
+                    }
+                    query = stanza.getChild('confirmation', NS_DISCSTATES);
+                    if (query) {
+                        let resda = query.getChild("item");
+                        this.events.emit("confirmation", resda.attrs)
                     }
                 }
                 else {

@@ -1,6 +1,6 @@
 {
   "name": "moonshard_core",
-  "version": "0.1.42",
+  "version": "0.1.44",
   "description": "core for moonshard messenger",
   "main": "index.js",
   "scripts": {
@@ -58,6 +58,7 @@
     "sinon": "^6.0.1",
     "tweetnacl": "^1.0.0",
     "typescript": "^2.9.2",
-    "wrtc": "~0.1.6"
+    "wrtc": "~0.1.6",
+    "js-x25519": "git+https://github.com/CryptoEsel/js-x25519.git"
   }
 }
