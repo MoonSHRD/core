@@ -109,9 +109,9 @@ dxmpp.connect(config);
 // dxmpp.set_vcard('Gagula','Gagulievich','Chel2');
 // dxmpp.get_vcard({id:"0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain: "localhost"});
 dxmpp.get_contacts();
-// dxmpp.register_channel({name: "Test", domain:"localhost"});
+dxmpp.register_channel({name: "Test", domain:"localhost"});
 // dxmpp.find_group("Test");
-dxmpp.send({id:"0x47fb664606af8f2d1467635349168a74c40b7c1d", domain: "localhost"} , "Test2", 1, true); //channel
+// dxmpp.send({id:"0x47fb664606af8f2d1467635349168a74c40b7c1d", domain: "localhost"} , "Test2", 1, true); //channel
 // dxmpp.send({id:"0x6c1567aee7f9d239bf1f7988bc009c00891c1571", domain: "localhost"}, "Hello ", 1, false); //user_chat
 
 

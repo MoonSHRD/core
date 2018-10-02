@@ -51,7 +51,7 @@ var Dxmpp = /** @class */ (function () {
     // let $ = qbox.create();
     Dxmpp.prototype.take_time = function () {
         var now = new Date();
-        return now.getHours() + ":" + now.getMinutes();
+        return now.getHours() + ":" + (now.getMinutes() > 9 ? now.getMinutes() : '0' + now.getMinutes());
     };
     ;
     Dxmpp.parse_vcard = function (data, element) {
@@ -129,9 +129,6 @@ var Dxmpp = /** @class */ (function () {
             var stanza = new Stanza('presence', { from: _this.client.options.jid, to: user.id + "@" + user.domain, type: 'subscribed' });
             stanza.c("pubKey").t(pub_key);
             _this.client.send(stanza);
-            // let users = [this.client.options.jid, user.id].sort();
-            // let users_str = `${users[0]}_${users[1]}`;
-            // this.client.register_channel({name: users_str, domain: "localhost", channel: "user_chat"})
         });
     };
     ;
@@ -175,11 +172,10 @@ var Dxmpp = /** @class */ (function () {
         });
     };
     ;
-    Dxmpp.prototype.register_channel = function (chat, password) {
+    Dxmpp.prototype.register_channel = function (channel, password) {
         var _this = this;
         this.$.ready(function () {
-            chat.name = Dxmpp.hexEncode(chat.name);
-            var stanza = new Stanza('presence', { from: _this.client.options.jid, to: chat.name + "@" + chat.domain, channel: '1' }).
+            var stanza = new Stanza('presence', { from: _this.client.options.jid, to: Dxmpp.hexEncode(channel.name) + "@" + channel.domain, channel: '1' }).
                 c('x', { xmlns: NS_ROOMSTATES });
             _this.client.send(stanza);
         });
@@ -431,6 +427,7 @@ var Dxmpp = /** @class */ (function () {
                     if (card) {
                         var data = {};
                         _this.events.emit('received_vcard', Dxmpp.parse_vcard(data, card));
+                        return;
                     }
                     var query = stanza.getChild('query', NS_DISCSTATES);
                     if (query) {

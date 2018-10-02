@@ -66,7 +66,7 @@ class Dxmpp {
 
     take_time() {
         let now = new Date();
-        return `${now.getHours()}:${now.getMinutes()}`
+        return `${now.getHours()}:${now.getMinutes()>9?now.getMinutes():'0'+now.getMinutes()}`
     };
 
     private static parse_vcard(data,element) {
@@ -151,9 +151,6 @@ class Dxmpp {
             let stanza = new Stanza('presence', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: 'subscribed'});
             stanza.c("pubKey").t(pub_key);
             this.client.send(stanza);
-            // let users = [this.client.options.jid, user.id].sort();
-            // let users_str = `${users[0]}_${users[1]}`;
-            // this.client.register_channel({name: users_str, domain: "localhost", channel: "user_chat"})
         });
     };
 
@@ -193,10 +190,9 @@ class Dxmpp {
         });
     };
 
-    register_channel(chat, password) {
+    register_channel(channel, password) {
         this.$.ready(()=>{
-            chat.name = Dxmpp.hexEncode(chat.name);
-            let stanza = new Stanza('presence', {from:this.client.options.jid,to:chat.name +"@"+chat.domain, channel:'1'}).
+            let stanza = new Stanza('presence', {from:this.client.options.jid,to: Dxmpp.hexEncode(channel.name)+"@"+channel.domain, channel:'1'}).
             c('x', {xmlns: NS_ROOMSTATES});
             this.client.send(stanza);
         });
@@ -443,6 +439,7 @@ class Dxmpp {
                     if (card) {
                         let data = {};
                         this.events.emit('received_vcard',Dxmpp.parse_vcard(data,card));
+                        return;
                     }
 
                     let query = stanza.getChild('query', NS_DISCSTATES);

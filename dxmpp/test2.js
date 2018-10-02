@@ -74,7 +74,7 @@ dxmpp.connect(config);
 dxmpp.get_contacts();
 // dxmpp.register_channel({name: "Test", domain:"localhost"});
 // dxmpp.find_group("Test");
-// dxmpp.join({id: "0x47fb664606af8f2d1467635349168a74c40b7c1d", domain: "localhost"});
+dxmpp.join({id: "0x39ba55cb80a4c7c1daf385650be389d1d9c9d6c8", domain: "localhost"});
 // dxmpp.subscribe({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain:"localhost"});
 // dxmpp.send({id:"0x47a042e8e3c2bc8483d1f032c957c8ee1e784cb1", domain: "localhost"} , "Test2", 1, true); //channel
 // dxmpp.send({id:"0x6c1567aee7f9d239bf1f7988bc009c00891c1571", domain: "localhost"}, "Hello ", 1, false); //user_chat
