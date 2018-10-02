@@ -24,7 +24,7 @@ dxmpp.on('user_joined_room', function(user, room_data, date) {
     // dxmpp.send(room_data.id+"@localhost", "fucka", true);
 });
 
-dxmpp.on('groupchat', function(room_data, message, sender, stamp, date) {
+dxmpp.on('groupchat', function(room_data, message, sender, date) {
     // console.log(`${sender} says ${message} in ${room_data.name} chat on ${stamp}`);
     console.log(`New message from group: ${room_data.id}@${room_data.host} - ${message}, date: ${date}`);
     // if(from !== options.nick)
@@ -72,9 +72,10 @@ dxmpp.connect(config);
 // dxmpp.set_vcard('Nikita','Metelkin','Chel1');
 // dxmpp.get_vcard({id:"0x6c1567aee7f9d239bf1f7988bc009c00891c1571", domain: "localhost"});
 dxmpp.get_contacts();
-// dxmpp.register_channel({name: "testgroup42342", domain:"localhost"});
+// dxmpp.register_channel({name: "Test", domain:"localhost"});
 // dxmpp.find_group("Test");
-// dxmpp.join({id: "0x1f62d6a80fe43966353687d07025b8c2c5e90586", domain: "localhost"});
+// dxmpp.join({id: "0x47fb664606af8f2d1467635349168a74c40b7c1d", domain: "localhost"});
 // dxmpp.subscribe({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain:"localhost"});
-// dxmpp.acceptSubscription({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain:"localhost"});
-// dxmpp.send({id: "0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain: "localhost"}, "Hello!", 1);
+// dxmpp.send({id:"0x47a042e8e3c2bc8483d1f032c957c8ee1e784cb1", domain: "localhost"} , "Test2", 1, true); //channel
+// dxmpp.send({id:"0x6c1567aee7f9d239bf1f7988bc009c00891c1571", domain: "localhost"}, "Hello ", 1, false); //user_chat
+

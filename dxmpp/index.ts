@@ -165,11 +165,11 @@ class Dxmpp {
         });
     };
 
-    send(user, message, id, type, secret) {
+    send(user, message, id, group, secret) {
         // if (group !== 1) {message = Dxmpp.encryptMsg(message, secret);}
         // else {user.id = Dxmpp.hexEncode(user.id);}
         this.$.ready(()=>{
-            let stanza = new Stanza('message', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: type});
+            let stanza = new Stanza('message', {from:this.client.options.jid,to: user.id+"@"+user.domain, type: group ? "groupchat" : "chat"});
             stanza.c('id').t(id);
             stanza.c('body').t(message);
             this.client.send(stanza);
@@ -195,8 +195,8 @@ class Dxmpp {
 
     register_channel(chat, password) {
         this.$.ready(()=>{
-            if (chat.type != "user_chat") { chat.name = Dxmpp.hexEncode(chat.name) }
-            let stanza = new Stanza('presence', {from:this.client.options.jid,to:chat.name +"@"+chat.domain, channel:chat.type}).
+            chat.name = Dxmpp.hexEncode(chat.name);
+            let stanza = new Stanza('presence', {from:this.client.options.jid,to:chat.name +"@"+chat.domain, channel:'1'}).
             c('x', {xmlns: NS_ROOMSTATES});
             this.client.send(stanza);
         });
@@ -363,7 +363,7 @@ class Dxmpp {
                         this.events.emit('chatstate', stanza.attrs.from, chatstate.name);
                     }
 
-                } else if (stanza.attrs.type == 'channel') {
+                } else if (stanza.attrs.type == 'groupchat') {
 
                     let body = stanza.getChild('body');
                     if (body) {
@@ -374,9 +374,6 @@ class Dxmpp {
                             date = stanza.getChild('x').attrs.date;
                         if (stanza.attrs.from) {
                             sender = stanza.attrs.from;
-                            // if (sender.split('/')) {
-                            //     sender = sender.split('/')[0]
-                            // }
                             sender=sender.split('@');
                             sender={address:sender[0],domain:sender[1]}
                         }
@@ -402,9 +399,6 @@ class Dxmpp {
                         //handling incoming unsubscription requests
                         let key = stanza.getChildText("pubKey");
                         this.events.emit('subscribed', user, key);
-                        let users = [this.client.options.jid, user.id].sort();
-                        let users_str = `${users[0].user}_${users[1]}`;
-                        this.register_channel({name: users_str, domain: "localhost", type: "user_chat"}, "")
                     } else {
                         //looking for presence stenza for availability changes
                         let statusText = stanza.getChildText('status');

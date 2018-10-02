@@ -49,7 +49,7 @@ dxmpp.on('chat', function(from, message, date) {
 });
 
 dxmpp.on('groupchat', function(room_data, message, sender, date) {
-    console.log(`New message from group: ${room_data.id}@${room_data.host} - ${message}, date: ${date}`);
+    console.log(`New message from group (${sender}): ${room_data.id}@${room_data.host} - ${message}, date: ${date}`);
     // if(from !== options.nick)
     // dxmpp.send(conference, from +': echo: ' + message, true);
 });
@@ -109,12 +109,12 @@ dxmpp.connect(config);
 // dxmpp.set_vcard('Gagula','Gagulievich','Chel2');
 // dxmpp.get_vcard({id:"0x0feab3b11b087c9e6f1b861e265b78c693aa100b", domain: "localhost"});
 dxmpp.get_contacts();
-// dxmpp.register_channel({name: "Test", domain:"localhost", type:"channel"});
+// dxmpp.register_channel({name: "Test", domain:"localhost"});
 // dxmpp.find_group("Test");
-// dxmpp.send({id:"0x1cea67a50d4a3d8c45f3b1ea12e5eacacb7742d7", domain: "localhost"} , "Test", 1, "channel");
-// dxmpp.send({id:"0x1f62d6a80fe43966353687d07025b8c2c5e90586", domain: "localhost"}, "Hello to you", 1, 'channel');
+dxmpp.send({id:"0x47fb664606af8f2d1467635349168a74c40b7c1d", domain: "localhost"} , "Test2", 1, true); //channel
+// dxmpp.send({id:"0x6c1567aee7f9d239bf1f7988bc009c00891c1571", domain: "localhost"}, "Hello ", 1, false); //user_chat
 
 
 // dxmpp.join({id: "testgroup3", domain: "localhost"});
-dxmpp.subscribe({id: "0x6C1567aeE7f9D239Bf1f7988Bc009C00891C1571", domain:"localhost"}, "key1");
+// dxmpp.subscribe({id: "0x6C1567aeE7f9D239Bf1f7988Bc009C00891C1571", domain:"localhost"}, "key1");
 // dxmpp.acceptSubscription({id: "0x6C1567aeE7f9D239Bf1f7988Bc009C00891C1571", domain:"localhost"});

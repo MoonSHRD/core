@@ -144,12 +144,12 @@ var Dxmpp = /** @class */ (function () {
         });
     };
     ;
-    Dxmpp.prototype.send = function (user, message, id, type, secret) {
+    Dxmpp.prototype.send = function (user, message, id, group, secret) {
         var _this = this;
         // if (group !== 1) {message = Dxmpp.encryptMsg(message, secret);}
         // else {user.id = Dxmpp.hexEncode(user.id);}
         this.$.ready(function () {
-            var stanza = new Stanza('message', { from: _this.client.options.jid, to: user.id + "@" + user.domain, type: type });
+            var stanza = new Stanza('message', { from: _this.client.options.jid, to: user.id + "@" + user.domain, type: group ? "groupchat" : "chat" });
             stanza.c('id').t(id);
             stanza.c('body').t(message);
             _this.client.send(stanza);
@@ -178,10 +178,8 @@ var Dxmpp = /** @class */ (function () {
     Dxmpp.prototype.register_channel = function (chat, password) {
         var _this = this;
         this.$.ready(function () {
-            if (chat.type != "user_chat") {
-                chat.name = Dxmpp.hexEncode(chat.name);
-            }
-            var stanza = new Stanza('presence', { from: _this.client.options.jid, to: chat.name + "@" + chat.domain, channel: chat.type }).
+            chat.name = Dxmpp.hexEncode(chat.name);
+            var stanza = new Stanza('presence', { from: _this.client.options.jid, to: chat.name + "@" + chat.domain, channel: '1' }).
                 c('x', { xmlns: NS_ROOMSTATES });
             _this.client.send(stanza);
         });
@@ -348,7 +346,7 @@ var Dxmpp = /** @class */ (function () {
                         _this.events.emit('chatstate', stanza.attrs.from, chatstate.name);
                     }
                 }
-                else if (stanza.attrs.type == 'channel') {
+                else if (stanza.attrs.type == 'groupchat') {
                     var body = stanza.getChild('body');
                     if (body) {
                         var message = body.getText();
@@ -358,9 +356,6 @@ var Dxmpp = /** @class */ (function () {
                             date = stanza.getChild('x').attrs.date;
                         if (stanza.attrs.from) {
                             sender = stanza.attrs.from;
-                            // if (sender.split('/')) {
-                            //     sender = sender.split('/')[0]
-                            // }
                             sender = sender.split('@');
                             sender = { address: sender[0], domain: sender[1] };
                         }
@@ -388,9 +383,6 @@ var Dxmpp = /** @class */ (function () {
                         //handling incoming unsubscription requests
                         var key = stanza.getChildText("pubKey");
                         _this.events.emit('subscribed', user, key);
-                        var users = [_this.client.options.jid, user.id].sort();
-                        var users_str = users[0].user + "_" + users[1];
-                        _this.register_channel({ name: users_str, domain: "localhost", type: "user_chat" }, "");
                     }
                     else {
                         //looking for presence stenza for availability changes
