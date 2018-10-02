@@ -47,7 +47,7 @@ var Dxmpp = /** @class */ (function () {
     // let $ = qbox.create();
     Dxmpp.prototype.take_time = function () {
         var now = new Date();
-        return now.getHours() + ":" + now.getMinutes();
+        return now.getHours() + ":" + (now.getMinutes() > 9 ? now.getMinutes() : '0' + now.getMinutes());
     };
     ;
     Dxmpp.parse_vcard = function (data, element) {
@@ -283,6 +283,7 @@ var Dxmpp = /** @class */ (function () {
         this.client.on('online', function (data) {
             _this.client.send(new Stanza('presence'));
             _this.events.emit('online', data);
+            _this.$.reset();
             _this.$.start();
             // keepalive
             if (_this.client.connection.socket) {
@@ -392,8 +393,10 @@ var Dxmpp = /** @class */ (function () {
                     if (card) {
                         var data = {};
                         _this.events.emit('received_vcard', Dxmpp.parse_vcard(data, card));
+                        return;
                     }
                     var query = stanza.getChild('query', 'http://jabber.org/protocol/disco#items');
+                    console.log(query);
                     if (query) {
                         var resda_1 = [];
                         query.getChildren("item").forEach(function (element) {

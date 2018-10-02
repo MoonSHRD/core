@@ -62,7 +62,7 @@ class Dxmpp {
 
     take_time() {
         let now = new Date();
-        return `${now.getHours()}:${now.getMinutes()}`
+        return `${now.getHours()}:${now.getMinutes()>9?now.getMinutes():'0'+now.getMinutes()}`
     };
 
     private static parse_vcard(data,element) {
@@ -293,6 +293,7 @@ class Dxmpp {
         this.client.on('online', (data)=>{
             this.client.send(new Stanza('presence'));
             this.events.emit('online', data);
+            this.$.reset();
             this.$.start();
 
             // keepalive
@@ -402,9 +403,11 @@ class Dxmpp {
                     if (card) {
                         let data = {};
                         this.events.emit('received_vcard',Dxmpp.parse_vcard(data,card));
+                        return;
                     }
 
                     const query = stanza.getChild('query', 'http://jabber.org/protocol/disco#items');
+                    console.log(query);
                     if (query) {
                         let resda = [];
                         query.getChildren("item").forEach((element) => {

@@ -16,8 +16,8 @@ function Ether() {
         return account;
     };
 
-    this.generate_priv_key = function () {
-        return this.generate_account().privateKey;
+    this.generate_priv_key = function (text) {
+        return this.generate_account(text).privateKey;
     };
 
     this.generate_address = function (privKey) {
