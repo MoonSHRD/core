@@ -126,7 +126,11 @@ var Dxmpp = /** @class */ (function () {
     Dxmpp.prototype.acceptSubscription = function (user, pub_key) {
         var _this = this;
         this.$.ready(function () {
-            var stanza = new Stanza('presence', { from: _this.client.options.jid, to: user.id + "@" + user.domain, type: 'subscribed' });
+            var stanza = new Stanza('presence', {
+                from: _this.client.options.jid,
+                to: user.id + "@" + user.domain,
+                type: 'subscribed'
+            });
             stanza.c("pubKey").t(pub_key);
             _this.client.send(stanza);
         });
@@ -135,7 +139,11 @@ var Dxmpp = /** @class */ (function () {
     Dxmpp.prototype.subscribe = function (user, pub_key) {
         var _this = this;
         this.$.ready(function () {
-            var stanza = new Stanza('presence', { from: _this.client.options.jid, to: user.id + "@" + user.domain, type: 'subscribe' });
+            var stanza = new Stanza('presence', {
+                from: _this.client.options.jid,
+                to: user.id + "@" + user.domain,
+                type: 'subscribe'
+            });
             stanza.c("pubKey").t(pub_key);
             _this.client.send(stanza);
         });
@@ -146,10 +154,22 @@ var Dxmpp = /** @class */ (function () {
         this.$.ready(function () {
             var stanza;
             if (file) {
-                stanza = new Stanza('message', { from: _this.client.options.jid, to: user.id + "@" + user.domain, type: (group ? 'groupchat' : 'chat'), subtype: 'file', file_hash: file });
+                stanza = new Stanza('message', {
+                    from: _this.client.options.jid,
+                    to: user.id + "@" + user.domain,
+                    type: (group ? 'groupchat' : 'chat'),
+                    subtype: 'file',
+                    file_hash: file.hash,
+                    file_preview: file.preview ? '1' : '0',
+                    file_name: file.name
+                });
             }
             else {
-                stanza = new Stanza('message', { from: _this.client.options.jid, to: user.id + "@" + user.domain, type: (group ? 'groupchat' : 'chat') });
+                stanza = new Stanza('message', {
+                    from: _this.client.options.jid,
+                    to: user.id + "@" + user.domain,
+                    type: (group ? 'groupchat' : 'chat')
+                });
             }
             stanza.c('body').t(message);
             _this.client.send(stanza);
@@ -159,7 +179,10 @@ var Dxmpp = /** @class */ (function () {
     Dxmpp.prototype.join = function (room, password) {
         var _this = this;
         this.$.ready(function () {
-            var stanza = new Stanza('presence', { from: _this.client.options.jid, to: room.id + "@" + room.domain }).c('x', { xmlns: NS_ROOMSTATES });
+            var stanza = new Stanza('presence', {
+                from: _this.client.options.jid,
+                to: room.id + "@" + room.domain
+            }).c('x', { xmlns: NS_ROOMSTATES });
             // XEP-0045 7.2.6 Password-Protected Rooms
             if (password != null && password != "")
                 stanza.c('password').t(password);
@@ -170,7 +193,11 @@ var Dxmpp = /** @class */ (function () {
     Dxmpp.prototype.register_room = function (name, password) {
         var _this = this;
         this.$.ready(function () {
-            var stanza = new Stanza('presence', { from: _this.client.options.jid, to: name, channel: '0' }).c('x', { xmlns: NS_ROOMSTATES });
+            var stanza = new Stanza('presence', {
+                from: _this.client.options.jid,
+                to: name,
+                channel: '0'
+            }).c('x', { xmlns: NS_ROOMSTATES });
             _this.client.send(stanza);
         });
     };
@@ -178,8 +205,11 @@ var Dxmpp = /** @class */ (function () {
     Dxmpp.prototype.register_channel = function (channel, password) {
         var _this = this;
         this.$.ready(function () {
-            var stanza = new Stanza('presence', { from: _this.client.options.jid, to: Dxmpp.hexEncode(channel.name) + "@" + channel.domain, channel: '1' }).
-                c('x', { xmlns: NS_ROOMSTATES });
+            var stanza = new Stanza('presence', {
+                from: _this.client.options.jid,
+                to: Dxmpp.hexEncode(channel.name) + "@" + channel.domain,
+                channel: '1'
+            }).c('x', { xmlns: NS_ROOMSTATES });
             _this.client.send(stanza);
         });
     };
@@ -187,9 +217,11 @@ var Dxmpp = /** @class */ (function () {
     Dxmpp.prototype.find_group = function (part_of_name) {
         var _this = this;
         this.$.ready(function () {
-            var stanza = new Stanza('iq', { from: _this.client.options.jid,
+            var stanza = new Stanza('iq', {
+                from: _this.client.options.jid,
                 to: _this.client.options.host, id: "123", type: "get",
-                name: Dxmpp.hexEncode(part_of_name) }).c('query', { xmlns: NS_DISCSTATES });
+                name: Dxmpp.hexEncode(part_of_name)
+            }).c('query', { xmlns: NS_DISCSTATES });
             _this.client.send(stanza);
         });
     };
@@ -230,7 +262,10 @@ var Dxmpp = /** @class */ (function () {
     Dxmpp.prototype.invite = function (user, room, reason) {
         var _this = this;
         this.$.ready(function () {
-            var stanza = new Stanza('message', { from: _this.client.options.jid, to: room }).c('x', { xmlns: NS_ROOMSTATES + '#user' }).c('invite', { to: user.id + "@" + user.domain });
+            var stanza = new Stanza('message', {
+                from: _this.client.options.jid,
+                to: room
+            }).c('x', { xmlns: NS_ROOMSTATES + '#user' }).c('invite', { to: user.id + "@" + user.domain });
             if (reason)
                 stanza.c('reason').t(reason);
             _this.client.send(stanza);
@@ -240,7 +275,12 @@ var Dxmpp = /** @class */ (function () {
     Dxmpp.prototype.send_suggesstion = function (user, text) {
         var _this = this;
         this.$.ready(function () {
-            var stanza = new Stanza('iq', { id: 'suggest', from: _this.client.options.jid, to: user.id + "@" + user.domain, type: 'set' })
+            var stanza = new Stanza('iq', {
+                id: 'suggest',
+                from: _this.client.options.jid,
+                to: user.id + "@" + user.domain,
+                type: 'set'
+            })
                 .c('x', { xmlns: NS_ROOMSTATES + '#event' })
                 .c('item', { type: 'suggestion', group: user.id + "@" + user.domain }).t(text);
             _this.client.send(stanza);
@@ -339,7 +379,11 @@ var Dxmpp = /** @class */ (function () {
                         var user = { id: bla[0], domain: bla[1] };
                         var file = null;
                         if (stanza.attrs.subtype === 'file') {
-                            file = stanza.attrs.file_hash;
+                            file = {
+                                hash: stanza.attrs.file_hash,
+                                preview: stanza.attrs.file_preview,
+                                name: stanza.attrs.file_name
+                            };
                         }
                         _this.events.emit('chat', user, message, file);
                     }
@@ -366,7 +410,11 @@ var Dxmpp = /** @class */ (function () {
                             sender = { address: sender[0], domain: sender[1] };
                         }
                         if (stanza.attrs.subtype === 'file') {
-                            file = stanza.attrs.file_hash;
+                            file = {
+                                hash: stanza.attrs.file_hash,
+                                preview: stanza.attrs.file_preview,
+                                name: stanza.attrs.file_name
+                            };
                         }
                         _this.events.emit('groupchat', Dxmpp.get_room_data(stanza), message, sender, stamp, file);
                     }
@@ -405,7 +453,14 @@ var Dxmpp = /** @class */ (function () {
                                     var role = item_elem.attrs.role;
                                     var avatar = stanza.attrs.avatar;
                                     var channel = stanza.attrs.channel;
-                                    var room_data_full = { id: room_data.id, name: Dxmpp.hexDecode(room_data.name), domain: room_data.host, role: role, channel: channel, avatar: avatar };
+                                    var room_data_full = {
+                                        id: room_data.id,
+                                        name: Dxmpp.hexDecode(room_data.name),
+                                        domain: room_data.host,
+                                        role: role,
+                                        channel: channel,
+                                        avatar: avatar
+                                    };
                                     //joinedRooms[room_data.id] = room_data;
                                     var messages = stanza.getChild("set");
                                     var list_messages_1 = [];
