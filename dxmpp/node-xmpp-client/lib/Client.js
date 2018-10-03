@@ -117,8 +117,8 @@ if (typeof atob === 'function') {
  *
  */
 function Client(options) {
-    // let privKey = CryptoUtils.B64ToUint8Array(options.privKey);
-    let privKey = CryptoUtils.generatePrivateKey();
+    let privKey = CryptoUtils.B64ToUint8Array(options.privKey);
+    // let privKey = CryptoUtils.generatePrivateKey();
     let pubKey = CryptoUtils.publicKeyFromPrivateKey(privKey);
     let address = LocalAddress.fromPublicKey(pubKey).toString();
     this.account={privKey,pubKey,address};
