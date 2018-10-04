@@ -1,5 +1,8 @@
 'use strict'
 let ethers = require('ethers');
+let {LocalAddress, CryptoUtils} = require('loom-js');
+let nacl = require('tweetnacl');
+// import {LocalAddress, CryptoUtils} from 'loom-js';
 //let SigningKey = ethers.SigningKey;
 const EthCrypto = require('eth-crypto');
 let Session = require('./session')
@@ -114,7 +117,11 @@ if (typeof atob === 'function') {
  *
  */
 function Client(options) {
-    this.account=new ethers.Wallet(options.privKey);
+    let privKey = CryptoUtils.B64ToUint8Array(options.privKey);
+    // let privKey = CryptoUtils.generatePrivateKey();
+    let pubKey = CryptoUtils.publicKeyFromPrivateKey(privKey);
+    let address = LocalAddress.fromPublicKey(pubKey).toString();
+    this.account={privKey,pubKey,address};
     options.username=this.account.address.toLowerCase();
     options.jid=options.username+"@"+options.jidhost;
     this.options = options;
@@ -281,18 +288,23 @@ Client.prototype._handleAuthState = function (stanza) {
     if (stanza.is('challenge', NS_AUTH)) {
         let challengeMsg = stanza.getText();
         let data = parseDict(challengeMsg);
-        let messageHash = EthCrypto.hash.keccak256(data.nonce);
-        data.signature = EthCrypto.sign(
-            this.account.privateKey, // privateKey
-            messageHash // hash of message
+        let uint_nonce=CryptoUtils.B64ToUint8Array(data.nonce);
+        // let messageHash = EthCrypto.hash.keccak256(data.nonce);
+
+        let uint8_sig = nacl.sign.detached(
+            uint_nonce, // message as uint8
+            this.account.privKey
         );
+        // uint8_sig= uint8_sig.slice(0, 65);
+        data.signature=CryptoUtils.Uint8ArrayToB64(uint8_sig);
         //data.pubKey=this.account.pubKey;
-        data.username=this.options.username;
+        data.username=this.account.address;
+        data.pubKey=CryptoUtils.Uint8ArrayToB64(this.account.pubKey);
         // data.
         // data.firstname=this.options.firstname?this.options.firstname:'';
         // data.lastname=this.options.lastname;
         let responseMsg = encodeDict(data);
-        let response = new Element('response', {xmlns: NS_AUTH}).t(responseMsg)
+        let response = new Element('response', {xmlns: NS_AUTH}).t(responseMsg);
         this.send(response)
     } else if (stanza.is('success', NS_AUTH)) {
         this.mech = null
