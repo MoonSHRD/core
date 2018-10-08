@@ -399,16 +399,17 @@ var Dxmpp = /** @class */ (function () {
                         var sender = null;
                         var stamp = null;
                         var file = null;
-                        if (stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
-                            stamp = stanza.getChild('x').attrs.stamp;
-                        if (stanza.attrs.sender) {
-                            sender = stanza.attrs.sender;
-                            if (sender.split('/')) {
-                                sender = sender.split('/')[0];
-                            }
-                            sender = sender.split('@');
-                            sender = { address: sender[0], domain: sender[1] };
-                        }
+                        if (stanza.getChild('x') && stanza.getChild('x').attrs.date)
+                            stamp = stanza.getChild('x').attrs.date;
+                        sender = stanza.attrs.from;
+                        // if (stanza.attrs.sender) {
+                        // sender = stanza.attrs.sender;
+                        // if (sender.split('/')) {
+                        //     sender = sender.split('/')[0]
+                        // }
+                        // sender = sender.split('@');
+                        // sender = {address: sender[0], domain: sender[1]}
+                        // }
                         if (stanza.attrs.subtype === 'file') {
                             file = {
                                 hash: stanza.attrs.file_hash,
