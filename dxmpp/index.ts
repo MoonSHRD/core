@@ -480,9 +480,12 @@ class Dxmpp {
                                     //joinedRooms[room_data.id] = room_data;
                                     let messages = stanza.getChild("set");
                                     let list_messages = [];
-                                    messages.getChildren("item").forEach(function (element) {
-                                        list_messages.push(element.attrs);
-                                    });
+                                    let item = messages.getChildren("item");
+                                    if (item){
+                                        item.forEach(function (element) {
+                                            list_messages.push(element.attrs);
+                                        });
+                                    }
                                     this.events.emit('joined_room', room_data_full, list_messages);
                                     return;
                                 } else {
@@ -514,6 +517,7 @@ class Dxmpp {
                     let query = stanza.getChild('query', NS_DISCSTATES);
                     if (query) {
                         let resda = [];
+                        let item = query.getChildren("item");
                         query.getChildren("item").forEach(function (element) {
                             element.attrs.name = Dxmpp.hexDecode(element.attrs.name);
                             resda.push(element.attrs);

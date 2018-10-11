@@ -464,9 +464,12 @@ var Dxmpp = /** @class */ (function () {
                                     //joinedRooms[room_data.id] = room_data;
                                     var messages = stanza.getChild("set");
                                     var list_messages_1 = [];
-                                    messages.getChildren("item").forEach(function (element) {
-                                        list_messages_1.push(element.attrs);
-                                    });
+                                    var item = messages.getChildren("item");
+                                    if (item) {
+                                        item.forEach(function (element) {
+                                            list_messages_1.push(element.attrs);
+                                        });
+                                    }
                                     _this.events.emit('joined_room', room_data_full, list_messages_1);
                                     return;
                                 }
@@ -500,6 +503,7 @@ var Dxmpp = /** @class */ (function () {
                     var query = stanza.getChild('query', NS_DISCSTATES);
                     if (query) {
                         var resda_1 = [];
+                        var item = query.getChildren("item");
                         query.getChildren("item").forEach(function (element) {
                             element.attrs.name = Dxmpp.hexDecode(element.attrs.name);
                             resda_1.push(element.attrs);
