@@ -462,13 +462,15 @@ var Dxmpp = /** @class */ (function () {
                                         avatar: avatar
                                     };
                                     //joinedRooms[room_data.id] = room_data;
-                                    var messages = stanza.getChild("set");
                                     var list_messages_1 = [];
-                                    var item = messages.getChildren("item");
-                                    if (item) {
-                                        item.forEach(function (element) {
-                                            list_messages_1.push(element.attrs);
-                                        });
+                                    var messages = stanza.getChild("set");
+                                    if (messages) {
+                                        var item = messages.getChildren("item");
+                                        if (item) {
+                                            item.forEach(function (element) {
+                                                list_messages_1.push(element.attrs);
+                                            });
+                                        }
                                     }
                                     _this.events.emit('joined_room', room_data_full, list_messages_1);
                                     return;
