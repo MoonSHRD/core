@@ -193,11 +193,11 @@ class Dxmpp {
                 type: (group ? 'groupchat' : 'chat')
             });
             if (files) {
-                stanza.c('files');
+                stanza=stanza.c('files');
                 for (let num in files) {
-                    stanza.c('item', {type: files[num].type, name:files[num].name}).t(files[num].hash).up();
+                    stanza.c('item', {type: files[num].type, name:files[num].name}).t(files[num].hash);
                 }
-
+                stanza=stanza.up();
             }
             // if (file) {
             //     stanza = new Stanza('message', {
