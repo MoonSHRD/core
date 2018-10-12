@@ -131,6 +131,19 @@ class Dxmpp {
         return helpers.decryptText(secret, msg);
     }
 
+    private get_files(files_st){
+        let files_a_st=files_st.getChildren('item');
+        let files=[];
+        files_a_st.forEach((file)=>{
+            files.push({
+                name:file.attrs.name,
+                type:file.attrs.type,
+                hash:file.attrs.hash,
+            })
+        });
+        return files;
+    }
+
     // let events = new EventEmitter();
     on(event, callback) {
         this.events.on(event, callback);
@@ -172,26 +185,37 @@ class Dxmpp {
         });
     };
 
-    send(user, message, group, file) {
+    send(user, message, group, files) {
         this.$.ready(() => {
-            let stanza;
-            if (file) {
-                stanza = new Stanza('message', {
-                    from: this.client.options.jid,
-                    to: user.id + "@" + user.domain,
-                    type: (group ? 'groupchat' : 'chat'),
-                    subtype: 'file',
-                    file_hash: file.hash,
-                    file_preview: file.preview ? '1' : '0',
-                    file_name: file.name
-                });
-            } else {
-                stanza = new Stanza('message', {
-                    from: this.client.options.jid,
-                    to: user.id + "@" + user.domain,
-                    type: (group ? 'groupchat' : 'chat')
-                });
+            let stanza = new Stanza('message', {
+                from: this.client.options.jid,
+                to: user.id + "@" + user.domain,
+                type: (group ? 'groupchat' : 'chat')
+            });
+            if (files) {
+                stanza.c('files');
+                for (let num in files) {
+                    stanza.c('item', {type: files[num].type, name:files[num].name}).t(files[num].hash).up();
+                }
+
             }
+            // if (file) {
+            //     stanza = new Stanza('message', {
+            //         from: this.client.options.jid,
+            //         to: user.id + "@" + user.domain,
+            //         type: (group ? 'groupchat' : 'chat'),
+            //         subtype: 'file',
+            //         file_hash: file.hash,
+            //         file_type: file.type,
+            //         file_name: file.name
+            //     });
+            // } else {
+            //     stanza = new Stanza('message', {
+            //         from: this.client.options.jid,
+            //         to: user.id + "@" + user.domain,
+            //         type: (group ? 'groupchat' : 'chat')
+            //     });
+            // }
             stanza.c('body').t(message);
             this.client.send(stanza);
         });
@@ -394,15 +418,12 @@ class Dxmpp {
                         let id = from.split('/')[0];
                         let bla = id.split("@");
                         let user = {id: bla[0], domain: bla[1]};
-                        let file = null;
-                        if (stanza.attrs.subtype === 'file') {
-                            file = {
-                                hash: stanza.attrs.file_hash,
-                                preview: stanza.attrs.file_preview,
-                                name: stanza.attrs.file_name
-                            };
+                        let files = [];
+                        let files_st = stanza.getChild('files');
+                        if (files_st) {
+                            files=this.get_files(files_st);
                         }
-                        this.events.emit('chat', user, message, file);
+                        this.events.emit('chat', user, message, files);
                     }
 
                     let chatstate = stanza.getChildByAttr('xmlns', NS_CHATSTATES);
@@ -417,7 +438,6 @@ class Dxmpp {
                         let message = body.getText();
                         let sender = null;
                         let stamp = null;
-                        let file = null;
                         if (stanza.getChild('x') && stanza.getChild('x').attrs.stamp)
                             stamp = stanza.getChild('x').attrs.stamp;
                         if (stanza.attrs.sender) {
@@ -428,14 +448,12 @@ class Dxmpp {
                             sender = sender.split('@');
                             sender = {address: sender[0], domain: sender[1]}
                         }
-                        if (stanza.attrs.subtype === 'file') {
-                            file = {
-                                hash: stanza.attrs.file_hash,
-                                preview: stanza.attrs.file_preview,
-                                name: stanza.attrs.file_name
-                            };
+                        let files = [];
+                        let files_st = stanza.getChild('files');
+                        if (files_st) {
+                            files=this.get_files(files_st);
                         }
-                        this.events.emit('groupchat', Dxmpp.get_room_data(stanza), message, sender, stamp, file);
+                        this.events.emit('groupchat', Dxmpp.get_room_data(stanza), message, sender, stamp, files);
                     }
                 }
             } else if (stanza.is('presence')) {
@@ -482,7 +500,7 @@ class Dxmpp {
                                     let messages = stanza.getChild("set");
                                     if (messages) {
                                         let item = messages.getChildren("item");
-                                        if (item){
+                                        if (item) {
                                             item.forEach(function (element) {
                                                 list_messages.push(element.attrs);
                                             });
