@@ -112,7 +112,7 @@ var Dxmpp = /** @class */ (function () {
             files.push({
                 name: file.attrs.name,
                 type: file.attrs.type,
-                hash: file.attrs.hash,
+                hash: file.getText(),
             });
         });
         return files;
