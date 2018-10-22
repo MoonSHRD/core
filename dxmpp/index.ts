@@ -502,7 +502,29 @@ class Dxmpp {
                                         let item = messages.getChildren("item");
                                         if (item) {
                                             item.forEach(function (element) {
-                                                list_messages.push(element.attrs);
+                                                let obj_message = {
+                                                    time:       null,
+                                                    sender:     null,
+                                                    message:    null,
+                                                    files:      null
+                                                };
+                                                obj_message.time = element.attrs.time;
+                                                obj_message.sender = element.attrs.sender;
+                                                obj_message.message = element.attrs.message;
+                                                // list_messages.push(element.attrs);
+                                                let files = element.getChild("files");
+                                                if (files) {
+                                                    let list_files = [];
+                                                    let item_files = files.getChildren("item");
+                                                    item_files.forEach(function (file) {
+                                                        let attrs = file.attrs;
+                                                        attrs.hash = file.getText();
+                                                        list_files.push(attrs);
+                                                    });
+                                                    obj_message.files = list_files;
+
+                                                }
+                                                list_messages.push(obj_message);
                                             });
                                         }
                                     }
