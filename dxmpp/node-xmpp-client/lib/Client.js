@@ -117,11 +117,18 @@ if (typeof atob === 'function') {
  *
  */
 function Client(options) {
-    let privKey = CryptoUtils.B64ToUint8Array(options.privKey);
+    let wal=new ethers.Wallet(privKey);
+    // this.wal=wal;
+    let addr = wal.address;
+    let {privateKey,publicKey}=wal.signingKey.keyPair;
+    // this.privKey=privateKey;
+    // this.pubKey=publicKey;
+    // this.addr = addr;
+    // let privKey = CryptoUtils.B64ToUint8Array(options.privKey);
     // let privKey = CryptoUtils.generatePrivateKey();
-    let pubKey = CryptoUtils.publicKeyFromPrivateKey(privKey);
-    let address = LocalAddress.fromPublicKey(pubKey).toString();
-    this.account={privKey,pubKey,address};
+    // let pubKey = CryptoUtils.publicKeyFromPrivateKey(privKey);
+    // let address = LocalAddress.fromPublicKey(pubKey).toString();
+    this.account={privKey:privateKey,pubKey:publicKey,address:addr};
     options.username=this.account.address.toLowerCase();
     options.jid=options.username+"@"+options.jidhost;
     this.options = options;
@@ -288,18 +295,18 @@ Client.prototype._handleAuthState = function (stanza) {
     if (stanza.is('challenge', NS_AUTH)) {
         let challengeMsg = stanza.getText();
         let data = parseDict(challengeMsg);
-        let uint_nonce=CryptoUtils.B64ToUint8Array(data.nonce);
+        // let uint_nonce=CryptoUtils.B64ToUint8Array(data.nonce);
         // let messageHash = EthCrypto.hash.keccak256(data.nonce);
 
-        let uint8_sig = nacl.sign.detached(
-            uint_nonce, // message as uint8
-            this.account.privKey
-        );
-        // uint8_sig= uint8_sig.slice(0, 65);
-        data.signature=CryptoUtils.Uint8ArrayToB64(uint8_sig);
-        //data.pubKey=this.account.pubKey;
+        // let uint8_sig = nacl.sign.detached(
+        //     uint_nonce, // message as uint8
+        //     this.account.privKey
+        // );
+        // // uint8_sig= uint8_sig.slice(0, 65);
+        // data.signature=CryptoUtils.Uint8ArrayToB64(uint8_sig);
+        data.pubKey=this.account.pubKey;
         data.username=this.account.address;
-        data.pubKey=CryptoUtils.Uint8ArrayToB64(this.account.pubKey);
+        // data.pubKey=CryptoUtils.Uint8ArrayToB64(this.account.pubKey);
         // data.
         // data.firstname=this.options.firstname?this.options.firstname:'';
         // data.lastname=this.options.lastname;

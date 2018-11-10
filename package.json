@@ -1,6 +1,6 @@
 {
   "name": "moonshard_core",
-  "version": "0.1.55",
+  "version": "0.1.56",
   "description": "core for moonshard messenger",
   "main": "index.js",
   "scripts": {
@@ -26,10 +26,11 @@
     "dirty-chai": "^2.0.1",
     "electron-webrtc": "~0.3.0",
     "eth-crypto": "^1.2.3",
-    "ethers": "^3.0.25",
+    "ethers": "^4.0.10",
     "fs": "0.0.1-security",
     "joi": "^13.4.0",
     "joi-browser": "^13.4.0",
+    "js-x25519": "git+https://github.com/CryptoEsel/js-x25519.git",
     "libp2p": "^0.22.0",
     "libp2p-circuit": "~0.2.0",
     "libp2p-kad-dht": "~0.10.0",
@@ -58,7 +59,6 @@
     "sinon": "^6.0.1",
     "tweetnacl": "^1.0.0",
     "typescript": "^2.9.2",
-    "wrtc": "~0.1.6",
-    "js-x25519": "git+https://github.com/CryptoEsel/js-x25519.git"
+    "wrtc": "~0.1.6"
   }
 }
