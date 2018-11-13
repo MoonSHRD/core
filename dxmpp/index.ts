@@ -32,7 +32,7 @@ let NS_DISCSTATES = "http://jabber.org/protocol/disco#items";
 let NS_vCARDSTATES = "vcard-temp";
 let NS_CHATEVSTATES = "http://jabber.org/protocol/muc#event";
 
-class Dxmpp {
+export class Dxmpp {
     private static instance: Dxmpp;
 
     private config: object;
@@ -607,4 +607,4 @@ class Dxmpp {
     // return this;
 }
 
-module.exports = Dxmpp;
+// module.exports = Dxmpp;

@@ -117,7 +117,7 @@ if (typeof atob === 'function') {
  *
  */
 function Client(options) {
-    let wal=new ethers.Wallet(privKey);
+    let wal=new ethers.Wallet(options.privKey);
     // this.wal=wal;
     let addr = wal.address;
     let {privateKey,publicKey}=wal.signingKey.keyPair;

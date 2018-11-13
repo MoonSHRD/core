@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var xmpp = require('./node-xmpp-client');
 var Stanza = xmpp.Stanza;
 var EventEmitter = require('events').EventEmitter;
@@ -587,4 +589,5 @@ var Dxmpp = /** @class */ (function () {
     ;
     return Dxmpp;
 }());
-module.exports = Dxmpp;
+exports.Dxmpp = Dxmpp;
+// module.exports = Dxmpp;
